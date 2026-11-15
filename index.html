@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BlackBerry Bold OS 7 - Functional Keyboard</title>
+    <title>BlackBerry Bold 9900 - Fixed Keyboard</title>
     <style>
         :root {
             --bb-bg: #111;
@@ -21,7 +21,7 @@
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
-            touch-action: none;
+            touch-action: none; /* 禁止页面滚动和缩放 */
         }
 
         .blackberry-device {
@@ -35,14 +35,12 @@
             flex-direction: column;
             box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
             border: 1px solid #333;
-            position: relative;
         }
 
         .top-bezel { text-align: center; padding-bottom: 8px; }
         .speaker { width: 50px; height: 6px; background: #000; margin: 0 auto; border-radius: 3px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);}
         .logo { color: #666; font-size: 11px; margin-top: 5px; font-weight: bold; letter-spacing: 2px;}
 
-        /* 宽屏屏幕 */
         .screen-container {
             width: 100%;
             aspect-ratio: 4 / 3; 
@@ -75,42 +73,27 @@
 
         /* 全局搜索层 */
         .search-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 20;
-            display: none;
-            padding: 20px;
-            color: #fff;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9); z-index: 20;
+            display: none; padding: 20px; color: #fff;
         }
         .search-overlay.active { display: block; }
         .search-box { border-bottom: 2px solid var(--bb-blue); padding-bottom: 5px; font-size: 16px; margin-bottom: 10px;}
 
         /* 桌面网格 */
         .app-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            padding: 15px;
-            align-content: start;
-            height: 100%;
-            box-sizing: border-box;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            padding: 15px; align-content: start; height: 100%; box-sizing: border-box;
         }
 
         .app-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            padding: 5px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            transition: all 0.1s;
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; padding: 5px; border: 2px solid transparent;
+            border-radius: 8px; transition: all 0.1s;
         }
 
         .app-icon.active {
-            background: rgba(255,255,255,0.1);
-            border-color: var(--bb-blue);
+            background: rgba(255,255,255,0.1); border-color: var(--bb-blue);
             box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
         }
 
@@ -122,36 +105,46 @@
         .icon-text { color: #fff; font-size: 10px; text-align: center; white-space: nowrap;}
 
         /* App 界面通用 */
-        .app-view {
-            display: none; flex-direction: column; height: 100%; background: #000;
-        }
+        .app-view { display: none; flex-direction: column; height: 100%; background: #000; }
         .app-view.active { display: flex; }
         .app-header {
             background: linear-gradient(180deg, #333, #111); color: #fff;
             padding: 8px; font-size: 14px; font-weight: bold; text-align: center;
             border-bottom: 1px solid #444;
         }
-        .app-list { flex-grow: 1; overflow-y: auto; padding-bottom: 40px;}
+        .app-list { flex-grow: 1; overflow-y: auto; padding-bottom: 50px;}
         
         .list-item {
             padding: 10px; border-bottom: 1px solid #222;
             color: #fff; font-size: 12px; display: flex; flex-direction: column;
         }
         .list-item strong { font-size: 13px; color: #eee; margin-bottom: 3px;}
-        .list-item span { color: #888; font-size: 11px;}
+        .list-item span { color: #888; font-size: 11px; word-break: break-all;}
 
-        /* 输入区 (真实打字) */
+        /* 聊天输入区 */
         .input-area {
             position: absolute; bottom: 0; left: 0; right: 0;
             background: #111; border-top: 1px solid #333;
-            display: none; padding: 5px;
+            display: none; padding: 8px; align-items: center;
         }
         .input-area.active { display: flex; }
-        .chat-input {
+        .chat-display {
             width: 100%; background: #000; color: #fff;
-            border: 1px solid #444; padding: 8px; font-size: 12px;
-            border-radius: 3px; outline: none;
+            border: 1px solid #444; padding: 6px 8px; font-size: 12px;
+            border-radius: 3px; min-height: 16px; word-break: break-all;
+            user-select: none; /* 防止双击选词导致光标错乱 */
         }
+        /* 闪烁光标 */
+        .cursor { display: inline-block; width: 2px; height: 12px; background: #fff; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px;}
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* 计算器界面 */
+        .calc-display {
+            background: #222; color: #fff; font-size: 24px; text-align: right;
+            padding: 15px; border-bottom: 2px solid #444; font-family: monospace;
+            overflow-x: auto; white-space: nowrap;
+        }
+        .calc-history { color: #888; font-size: 12px; padding: 5px 15px; text-align: right;}
 
         /* 导航键 */
         .nav-row {
@@ -189,16 +182,20 @@
             margin: 0 2px; display: flex; justify-content: center; align-items: center;
             font-size: 12px; box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
             border: 1px solid #000; cursor: pointer; user-select: none;
+            position: relative;
         }
-        /* 键盘按下的动画效果 */
         .key:active, .key.pressed { 
             transform: translateY(1px); box-shadow: 0 1px 1px rgba(0,0,0,0.8); 
             background: linear-gradient(180deg, #111, #333); 
         }
         
+        .key .num-badge {
+            position: absolute; top: 1px; right: 2px; font-size: 8px; color: #888;
+        }
+        
         .key.special { flex: 1.5; font-size: 10px; color: #888; }
         .key.space { flex: 4; }
-        .key.shift-on { background: #00bfff; color: #fff; }
+        .key.active-mode { background: #00bfff; color: #fff; }
     </style>
 </head>
 <body>
@@ -215,8 +212,8 @@
             <div class="screen-content">
                 <!-- 全局搜索层 -->
                 <div class="search-overlay" id="search-overlay">
-                    <div class="search-box" id="search-text">搜索: </div>
-                    <div style="font-size:12px; color:#888;">按 ESC 或 返回键 退出搜索</div>
+                    <div class="search-box" id="search-text">搜索: <span class="cursor"></span></div>
+                    <div style="font-size:12px; color:#888;">按 返回键 退出搜索</div>
                 </div>
 
                 <!-- 桌面 -->
@@ -232,6 +229,9 @@
                     </div>
                     <div class="app-icon" onclick="openApp('calendar')">
                         <div class="icon-img" style="background:#ff9800;">📅</div><div class="icon-text">日历(C)</div>
+                    </div>
+                    <div class="app-icon" onclick="openApp('calculator')">
+                        <div class="icon-img" style="background:#9c27b0;">🧮</div><div class="icon-text">计算器</div>
                     </div>
                     <div class="app-icon" onclick="openApp('browser')">
                         <div class="icon-img" style="background:#2196F3;">🌐</div><div class="icon-text">浏览器(W)</div>
@@ -249,7 +249,8 @@
                         <div class="list-item"><strong>10086</strong><span>尊敬的客户，您本月流量已使用80%。</span></div>
                     </div>
                     <div class="input-area" id="msg-input-area">
-                        <input type="text" class="chat-input" id="msg-input" placeholder="输入新短信，按 Enter 发送..." readonly>
+                        <!-- 输入框现在只有显示功能，全靠JS控制内容 -->
+                        <div class="chat-display" id="msg-input"><span class="cursor"></span></div>
                     </div>
                 </div>
 
@@ -260,36 +261,38 @@
                         <div class="list-item"><strong>Mike L.</strong><span>PIN: 24A3B4C5 - 周末去打球吗？</span></div>
                     </div>
                     <div class="input-area" id="bbm-input-area">
-                        <input type="text" class="chat-input" id="bbm-input" placeholder="输入 BBM 消息，按 Enter 发送..." readonly>
+                        <div class="chat-display" id="bbm-input"><span class="cursor"></span></div>
+                    </div>
+                </div>
+
+                <!-- 计算器界面 -->
+                <div class="app-view" id="view-calculator">
+                    <div class="app-header">计算器</div>
+                    <div class="calc-history" id="calc-history"></div>
+                    <div class="calc-display" id="calc-display">0</div>
+                    <div style="color:#666; font-size:12px; text-align:center; margin-top:20px;">
+                        请使用下方全键盘输入<br>按 Sym 输入运算符
                     </div>
                 </div>
 
                 <div class="app-view" id="view-email">
                     <div class="app-header">邮件</div>
-                    <div class="app-list">
-                        <div class="list-item"><strong>GitHub</strong><span>[GitHub] 您的项目有新的 Star！</span></div>
-                    </div>
+                    <div class="app-list"><div class="list-item"><strong>GitHub</strong><span>[GitHub] 您的项目有新的 Star！</span></div></div>
                 </div>
 
                 <div class="app-view" id="view-calendar">
                     <div class="app-header">日历 - 10月26日</div>
-                    <div class="app-list">
-                        <div class="list-item"><strong>10:00</strong><span>项目评审会议</span></div>
-                    </div>
+                    <div class="app-list"><div class="list-item"><strong>10:00</strong><span>项目评审会议</span></div></div>
                 </div>
 
                 <div class="app-view" id="view-browser">
                     <div class="app-header">浏览器</div>
-                    <div class="app-list">
-                        <div class="list-item"><strong>收藏夹</strong><span>百度 (www.baidu.com)</span></div>
-                    </div>
+                    <div class="app-list"><div class="list-item"><strong>收藏夹</strong><span>百度 (www.baidu.com)</span></div></div>
                 </div>
 
                 <div class="app-view" id="view-settings">
                     <div class="app-header">设置</div>
-                    <div class="app-list">
-                        <div class="list-item"><strong>网络连接</strong><span>Wi-Fi / 移动网络</span></div>
-                    </div>
+                    <div class="app-list"><div class="list-item"><strong>网络连接</strong><span>Wi-Fi / 移动网络</span></div></div>
                 </div>
             </div>
         </div>
@@ -298,28 +301,35 @@
         <div class="nav-row">
             <div class="nav-btn btn-green">接听</div>
             <div class="nav-btn btn-black" id="btn-menu">菜单</div>
-            <div class="trackpad" id="trackpad">
-                <div class="trackpad-inner"></div>
-            </div>
+            <div class="trackpad" id="trackpad"><div class="trackpad-inner"></div></div>
             <div class="nav-btn btn-black" id="btn-back">返回</div>
             <div class="nav-btn btn-red">挂断</div>
         </div>
 
-        <!-- 全键盘区 (带功能) -->
+        <!-- 全键盘区 -->
         <div class="keyboard" id="keyboard">
             <div class="key-row">
-                <div class="key" data-key="q">Q</div><div class="key" data-key="w">W</div><div class="key" data-key="e">E</div><div class="key" data-key="r">R</div><div class="key" data-key="t">T</div><div class="key" data-key="y">Y</div><div class="key" data-key="u">U</div><div class="key" data-key="i">I</div><div class="key" data-key="o">O</div><div class="key" data-key="p">P</div>
+                <div class="key" data-key="q" data-num="1">q<span class="num-badge">1</span></div>
+                <div class="key" data-key="w" data-num="2">w<span class="num-badge">2</span></div>
+                <div class="key" data-key="e" data-num="3">e<span class="num-badge">3</span></div>
+                <div class="key" data-key="r" data-num="4">r<span class="num-badge">4</span></div>
+                <div class="key" data-key="t" data-num="5">t<span class="num-badge">5</span></div>
+                <div class="key" data-key="y" data-num="6">y<span class="num-badge">6</span></div>
+                <div class="key" data-key="u" data-num="7">u<span class="num-badge">7</span></div>
+                <div class="key" data-key="i" data-num="8">i<span class="num-badge">8</span></div>
+                <div class="key" data-key="o" data-num="9">o<span class="num-badge">9</span></div>
+                <div class="key" data-key="p" data-num="0">p<span class="num-badge">0</span></div>
             </div>
             <div class="key-row">
-                <div class="key" data-key="a">A</div><div class="key" data-key="s">S</div><div class="key" data-key="d">D</div><div class="key" data-key="f">F</div><div class="key" data-key="g">G</div><div class="key" data-key="h">H</div><div class="key" data-key="j">J</div><div class="key" data-key="k">K</div><div class="key" data-key="l">L</div>
+                <div class="key" data-key="a">a</div><div class="key" data-key="s">s</div><div class="key" data-key="d">d</div><div class="key" data-key="f">f</div><div class="key" data-key="g">g</div><div class="key" data-key="h">h</div><div class="key" data-key="j">j</div><div class="key" data-key="k">k</div><div class="key" data-key="l">l</div>
             </div>
             <div class="key-row">
-                <div class="key special" id="key-shift">Shift</div>
-                <div class="key" data-key="z">Z</div><div class="key" data-key="x">X</div><div class="key" data-key="c">C</div><div class="key" data-key="v">V</div><div class="key" data-key="b">B</div><div class="key" data-key="n">N</div><div class="key" data-key="m">M</div>
+                <div class="key special" id="key-123">123</div>
+                <div class="key" data-key="z">z</div><div class="key" data-key="x">x</div><div class="key" data-key="c">c</div><div class="key" data-key="v">v</div><div class="key" data-key="b">b</div><div class="key" data-key="n">n</div><div class="key" data-key="m">m</div>
                 <div class="key special" id="key-del">Del</div>
             </div>
             <div class="key-row">
-                <div class="key special">Sym</div>
+                <div class="key special" id="key-sym">Sym</div>
                 <div class="key space" data-key=" ">Space</div>
                 <div class="key special" id="key-enter">Enter</div>
             </div>
@@ -327,6 +337,7 @@
     </div>
 
     <script>
+        // ======== 全局状态 ========
         let currentIndex = 0;
         const icons = document.querySelectorAll('.app-icon');
         const trackpad = document.getElementById('trackpad');
@@ -336,19 +347,28 @@
         const searchOverlay = document.getElementById('search-overlay');
         const searchText = document.getElementById('search-text');
         
-        // 输入状态
-        let isShiftOn = false;
-        let currentInput = null; // 当前聚焦的输入框
+        // 当前系统状态：'home', 'messages', 'bbm', 'calculator', 'search', 'other'
+        let appState = 'home'; 
+        
+        // 核心：用变量存储输入的文字，解决叠加和快捷键冲突
+        let msgText = ""; 
+        let bbmText = "";
+        let searchTextString = "";
+        
+        let isNumberMode = false;
 
-        // 快捷键映射表 (黑莓经典)
+        // 快捷键映射
         const shortcutMap = {
-            'm': 'messages',
-            'b': 'bbm',
-            'e': 'email',
-            'c': 'calendar',
-            'w': 'browser',
-            's': 'settings'
+            'm': 'messages', 'b': 'bbm', 'e': 'email', 'c': 'calendar', 'w': 'browser', 's': 'settings'
         };
+
+        // 计算器状态
+        let calcDisplay = document.getElementById('calc-display');
+        let calcHistory = document.getElementById('calc-history');
+        let calcCurrentNum = '0';
+        let calcPrevNum = '';
+        let calcOperator = '';
+        let calcResetNext = false;
 
         // 更新时间
         setInterval(() => {
@@ -358,7 +378,7 @@
                 now.getMinutes().toString().padStart(2, '0');
         }, 1000);
 
-        // 更新焦点
+        // ======== 视图切换逻辑 ========
         function updateFocus(newIndex) {
             icons[currentIndex].classList.remove('active');
             currentIndex = newIndex;
@@ -367,7 +387,6 @@
             icons[currentIndex].classList.add('active');
         }
 
-        // 打开 App 逻辑
         function openApp(appId) {
             appGrid.style.display = 'none';
             searchOverlay.classList.remove('active');
@@ -376,205 +395,244 @@
             const targetView = document.getElementById('view-' + appId);
             if (targetView) {
                 targetView.classList.add('active');
-                // 如果是短信或BBM，显示输入框并聚焦
                 if (appId === 'messages' || appId === 'bbm') {
-                    const inputArea = document.getElementById(appId + '-input-area');
-                    inputArea.classList.add('active');
-                    currentInput = document.getElementById(appId + '-input');
+                    document.getElementById(appId + '-input-area').classList.add('active');
+                    appState = appId;
+                    updateChatDisplay(appId); // 恢复之前的文字
+                } else if (appId === 'calculator') {
+                    appState = 'calculator';
                 } else {
-                    currentInput = null;
+                    document.querySelectorAll('.input-area').forEach(el => el.classList.remove('active'));
+                    appState = 'other';
                 }
             }
         }
 
-        // 返回桌面
         function goBack() {
-            if (searchOverlay.classList.contains('active')) {
+            if (appState === 'search') {
                 searchOverlay.classList.remove('active');
+                searchTextString = "";
+                appState = 'home';
                 return;
             }
             views.forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.input-area').forEach(el => el.classList.remove('active'));
             appGrid.style.display = 'grid';
-            currentInput = null;
+            appState = 'home';
         }
 
         btnBack.addEventListener('click', goBack);
-        document.getElementById('btn-menu').addEventListener('click', () => {
-            if (appGrid.style.display === 'none') goBack();
-        });
 
-        // ========== 核心：键盘按键逻辑 ==========
-        
-        // 模拟发送消息
+        // ======== 输入框渲染逻辑 ========
+        function updateChatDisplay(appId) {
+            const displayEl = document.getElementById(appId + '-input');
+            let text = appId === 'messages' ? msgText : bbmText;
+            // 使用 innerText 赋值文本，并在末尾追加闪烁光标
+            displayEl.innerHTML = text + '<span class="cursor"></span>';
+        }
+
+        // 发送消息
         function sendMessage(appId) {
-            if (!currentInput || currentInput.value.trim() === '') return;
+            let text = appId === 'messages' ? msgText : bbmText;
+            if (text.trim() === '') return;
             
             const listId = appId === 'messages' ? 'msg-list' : 'bbm-list';
             const list = document.getElementById(listId);
             
-            // 创建新消息节点
             const newItem = document.createElement('div');
             newItem.className = 'list-item';
-            newItem.innerHTML = `<strong>我 (刚刚)</strong><span>${currentInput.value}</span>`;
+            newItem.innerHTML = `<strong>我 (刚刚)</strong><span>${text}</span>`;
             list.appendChild(newItem);
-            
-            // 滚动到底部
             list.scrollTop = list.scrollHeight;
             
-            // 清空输入框
-            currentInput.value = '';
+            // 清空文字
+            if (appId === 'messages') msgText = ""; else bbmText = "";
+            updateChatDisplay(appId);
         }
 
-        // 屏幕点击键盘事件委托
-        document.getElementById('keyboard').addEventListener('click', (e) => {
-            const keyEl = e.target.closest('.key');
-            if (!keyEl) return;
-
-            // 键盘按下视觉反馈
-            keyEl.classList.add('pressed');
-            setTimeout(() => keyEl.classList.remove('pressed'), 100);
-
-            // 处理特殊键
-            if (keyEl.id === 'key-shift') {
-                isShiftOn = !isShiftOn;
-                keyEl.classList.toggle('shift-on', isShiftOn);
-                // 更新字母大小写显示
-                document.querySelectorAll('.key[data-key]').forEach(k => {
-                    if (k.innerText.length === 1) {
-                        k.innerText = isShiftOn ? k.innerText.toUpperCase() : k.innerText.toLowerCase();
-                    }
-                });
+        // 计算器逻辑
+        function calcInput(val) {
+            if (val === 'C') {
+                calcCurrentNum = '0'; calcPrevNum = ''; calcOperator = '';
+                calcHistory.innerText = ''; calcDisplay.innerText = '0';
                 return;
             }
-            
-            if (keyEl.id === 'key-del') {
-                if (currentInput) currentInput.value = currentInput.value.slice(0, -1);
-                else if (searchOverlay.classList.contains('active')) {
-                    searchText.innerText = searchText.innerText.slice(0, -1);
-                    if (searchText.innerText === '搜索: ') searchOverlay.classList.remove('active');
+            if (val === '=') {
+                if (calcOperator && calcPrevNum) {
+                    let result = 0;
+                    let prev = parseFloat(calcPrevNum);
+                    let curr = parseFloat(calcCurrentNum);
+                    if (calcOperator === '+') result = prev + curr;
+                    if (calcOperator === '-') result = prev - curr;
+                    if (calcOperator === '*') result = prev * curr;
+                    if (calcOperator === '/') result = prev / curr;
+                    
+                    calcHistory.innerText = `${calcPrevNum} ${calcOperator} ${calcCurrentNum} =`;
+                    calcDisplay.innerText = result;
+                    calcCurrentNum = result.toString();
+                    calcOperator = '';
+                    calcResetNext = true;
                 }
                 return;
             }
-            
-            if (keyEl.id === 'key-enter') {
-                if (currentInput) {
-                    const appId = currentInput.id.split('-')[0];
-                    sendMessage(appId);
-                }
+            if (['+', '-', '*', '/'].includes(val)) {
+                calcPrevNum = calcCurrentNum; calcOperator = val;
+                calcHistory.innerText = `${calcPrevNum} ${calcOperator}`;
+                calcResetNext = true;
                 return;
             }
+            if (calcResetNext) { calcCurrentNum = val; calcResetNext = false; } 
+            else {
+                if (calcCurrentNum === '0' && val !== '.') calcCurrentNum = val;
+                else calcCurrentNum += val;
+            }
+            calcDisplay.innerText = calcCurrentNum;
+        }
 
-            // 处理普通按键
-            const char = keyEl.getAttribute('data-key');
-            if (!char) return;
-
-            if (currentInput) {
-                // 有输入框，直接打字
-                currentInput.value += char;
-            } else if (appGrid.style.display === 'grid') {
-                // 在桌面，触发快捷键或全局搜索
+        // ======== 核心按键处理（统管虚拟按键和实体按键） ========
+        function processKeyInput(char, isSpecialAction = false) {
+            // 1. 如果在桌面
+            if (appState === 'home') {
+                if (isSpecialAction) return; // 桌面忽略空格等
                 const lowerChar = char.toLowerCase();
                 if (shortcutMap[lowerChar]) {
                     openApp(shortcutMap[lowerChar]);
                 } else {
-                    // 任意字母触发全局搜索
+                    // 打开全局搜索
+                    appState = 'search';
                     searchOverlay.classList.add('active');
-                    searchText.innerText = '搜索: ' + char;
+                    searchTextString = char;
+                    searchText.innerHTML = '搜索: ' + searchTextString + '<span class="cursor"></span>';
                 }
-            }
-        });
-
-        // ========== 触控板导航 (保留) ==========
-        let startX = 0, startY = 0;
-        let isSwiping = false;
-
-        trackpad.addEventListener('touchstart', handleTouchStart, {passive: false});
-        trackpad.addEventListener('touchmove', handleTouchMove, {passive: false});
-        trackpad.addEventListener('touchend', handleTouchEnd, {passive: false});
-        
-        trackpad.addEventListener('click', () => {
-            if (appGrid.style.display !== 'none') {
-                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
-            }
-        });
-
-        function handleTouchStart(e) {
-            e.preventDefault(); startX = e.touches[0].clientX; startY = e.touches[0].clientY; isSwiping = false;
-        }
-
-        function handleTouchMove(e) {
-            e.preventDefault();
-            if (startX === 0 || startY === 0) return;
-            let deltaX = e.touches[0].clientX - startX;
-            let deltaY = e.touches[0].clientY - startY;
-            
-            if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
-                isSwiping = true;
-                let cols = 4;
-                if (appGrid.style.display === 'grid') {
-                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                        if (deltaX > 0) updateFocus(currentIndex + 1); else updateFocus(currentIndex - 1);
-                    } else {
-                        if (deltaY > 0) updateFocus(currentIndex + cols); else updateFocus(currentIndex - cols);
-                    }
-                }
-                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-            }
-        }
-
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            if (!isSwiping && appGrid.style.display !== 'none') {
-                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
-            }
-            startX = 0; startY = 0;
-        }
-
-        // ========== 电脑实体键盘适配 ==========
-        document.addEventListener('keydown', (e) => {
-            // 如果正在输入框打字，不要触发全局搜索/快捷键
-            if (document.activeElement.tagName === 'INPUT') return;
-
-            if (e.key === 'Escape' || e.key === 'Backspace') {
-                goBack();
                 return;
             }
 
-            if (appGrid.style.display === 'grid') {
-                // 直接按字母触发快捷键
-                const lowerKey = e.key.toLowerCase();
-                if (shortcutMap[lowerKey]) {
-                    openApp(shortcutMap[lowerKey]);
-                } else if (/^[a-z]$/.test(lowerKey)) {
-                    searchOverlay.classList.add('active');
-                    searchText.innerText = '搜索: ' + e.key;
-                }
+            // 2. 如果在全局搜索
+            if (appState === 'search') {
+                if (isSpecialAction) return;
+                searchTextString += char;
+                searchText.innerHTML = '搜索: ' + searchTextString + '<span class="cursor"></span>';
+                return;
+            }
 
-                // 方向键控制焦点
-                let cols = 4;
-                if (e.key === 'ArrowRight') updateFocus(currentIndex + 1);
-                else if (e.key === 'ArrowLeft') updateFocus(currentIndex - 1);
-                else if (e.key === 'ArrowDown') updateFocus(currentIndex + cols);
-                else if (e.key === 'ArrowUp') updateFocus(currentIndex - cols);
-                else if (e.key === 'Enter') {
-                    openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
+            // 3. 如果在聊天界面
+            if (appState === 'messages' || appState === 'bbm') {
+                if (isSpecialAction) return;
+                if (appState === 'messages') {
+                    msgText += char; 
+                    updateChatDisplay('messages');
+                } else {
+                    bbmText += char; 
+                    updateChatDisplay('bbm');
                 }
+                return;
+            }
+
+            // 4. 如果在计算器
+            if (appState === 'calculator') {
+                if (!isNaN(char) || char === '.' || ['+', '-', '*', '/'].includes(char)) {
+                    calcInput(char);
+                }
+                return;
+            }
+        }
+
+        // ======== 处理删除和回车 ========
+        function processSpecialKey(action) {
+            if (action === 'del') {
+                if (appState === 'messages') {
+                    msgText = msgText.slice(0, -1); updateChatDisplay('messages');
+                } else if (appState === 'bbm') {
+                    bbmText = bbmText.slice(0, -1); updateChatDisplay('bbm');
+                } else if (appState === 'search') {
+                    searchTextString = searchTextString.slice(0, -1);
+                    if (searchTextString === '') { goBack(); } 
+                    else { searchText.innerHTML = '搜索: ' + searchTextString + '<span class="cursor"></span>'; }
+                } else if (appState === 'calculator') {
+                    calcCurrentNum = calcCurrentNum.length > 1 ? calcCurrentNum.slice(0, -1) : '0';
+                    calcDisplay.innerText = calcCurrentNum;
+                }
+            } else if (action === 'enter') {
+                if (appState === 'messages') sendMessage('messages');
+                else if (appState === 'bbm') sendMessage('bbm');
+                else if (appState === 'calculator') calcInput('=');
+            }
+        }
+
+        // ======== 虚拟键盘点击事件 ========
+        document.getElementById('keyboard').addEventListener('click', (e) => {
+            const keyEl = e.target.closest('.key');
+            if (!keyEl) return;
+
+            // 动画
+            keyEl.classList.add('pressed');
+            setTimeout(() => keyEl.classList.remove('pressed'), 100);
+
+            // 处理特殊键
+            if (keyEl.id === 'key-del') { processSpecialKey('del'); return; }
+            if (keyEl.id === 'key-enter') { processSpecialKey('enter'); return; }
+            
+            if (keyEl.id === 'key-123') {
+                isNumberMode = !isNumberMode;
+                keyEl.classList.toggle('active-mode', isNumberMode);
+                document.querySelectorAll('.key[data-num]').forEach(k => {
+                    if (isNumberMode) k.innerText = k.getAttribute('data-num');
+                    else k.innerHTML = k.getAttribute('data-key') + `<span class="num-badge">${k.getAttribute('data-num')}</span>`;
+                });
+                return;
+            }
+
+            if (keyEl.id === 'key-sym') {
+                const symKeys = ['a', 's', 'd', 'f'];
+                const symChars = ['+', '-', '*', '/'];
+                document.querySelectorAll('.key[data-key]').forEach(k => {
+                    let key = k.getAttribute('data-key');
+                    let idx = symKeys.indexOf(key);
+                    if (idx > -1) {
+                        k.innerText = symChars[idx];
+                        k.setAttribute('data-sym', symChars[idx]);
+                    }
+                });
+                return;
+            }
+
+            // 处理普通字符
+            let char = keyEl.getAttribute('data-sym') || (isNumberMode && keyEl.hasAttribute('data-num') ? keyEl.getAttribute('data-num') : keyEl.getAttribute('data-key'));
+            if (char) processKeyInput(char);
+        });
+
+        // ======== 电脑实体键盘事件（修复Bug的关键） ========
+        document.addEventListener('keydown', (e) => {
+            // 如果是方向键或者 Esc，走导航逻辑
+            if (appState === 'home') {
+                let cols = 4;
+                if (e.key === 'ArrowRight') { updateFocus(currentIndex + 1); return; }
+                if (e.key === 'ArrowLeft') { updateFocus(currentIndex - 1); return; }
+                if (e.key === 'ArrowDown') { updateFocus(currentIndex + cols); return; }
+                if (e.key === 'ArrowUp') { updateFocus(currentIndex - cols); return; }
+                if (e.key === 'Enter') { 
+                    openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]); 
+                    return; 
+                }
+            }
+            
+            // 如果按了退格、回车、Esc
+            if (e.key === 'Escape' || e.key === 'Backspace') { processSpecialKey('del'); if(e.key === 'Escape') goBack(); return; }
+            if (e.key === 'Enter') { processSpecialKey('enter'); return; }
+
+            // 如果是普通字母和数字
+            if (e.key.length === 1) {
+                processKeyInput(e.key);
             }
         });
 
-        // 处理真实键盘在输入框内的 Enter 发送
-        document.querySelectorAll('.chat-input').forEach(input => {
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const appId = input.id.split('-')[0];
-                    sendMessage(appId);
-                }
-            });
-            // 用真实的手机软键盘输入也可以
-            input.addEventListener('input', () => {
-                // 允许用户直接点击网页上的 input 并输入
-            });
+        // ======== 触控板 ========
+        trackpad.addEventListener('click', () => {
+            if (appState === 'home') {
+                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
+            } else if (appState === 'calculator') {
+                calcInput('=');
+            }
         });
     </script>
 </body>
