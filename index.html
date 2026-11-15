@@ -5,20 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BlackBerry Bold 9900</title>
     
-    <!-- 苹果设备添加到桌面的图标（PNG格式） -->
+    <!-- 桌面图标 -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/882/882786.png">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/882/882786.png">
-    
-    <!-- 全屏沉浸模式 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BlackBerry">
 
     <style>
         :root { --bb-blue: #00bfff; }
         body {
             background-color: #050505; display: flex; justify-content: center; align-items: center;
-            height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: none;
+            height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: none; user-select: none;
         }
         .blackberry-device {
             width: 96vw; max-width: 420px; background: linear-gradient(180deg, #2a2a2a, #111);
@@ -40,7 +36,15 @@
         }
         .screen-content { flex-grow: 1; position: relative; overflow-y: auto; }
 
-        /* 桌面网格 */
+        /* 全局搜索层 */
+        .search-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95); z-index: 20; display: none; padding: 20px; color: #fff;
+        }
+        .search-overlay.active { display: block; }
+        .search-box { border-bottom: 2px solid var(--bb-blue); padding-bottom: 5px; font-size: 16px; margin-bottom: 10px; min-height: 20px;}
+
+        /* 桌面 */
         .app-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
             padding: 15px; align-content: start; height: 100%; box-sizing: border-box;
@@ -77,7 +81,6 @@
         .chat-display {
             width: 100%; background: #000; color: #fff; border: 1px solid #444;
             padding: 6px 8px; font-size: 12px; border-radius: 3px; min-height: 16px; word-break: break-all;
-            user-select: none;
         }
         .cursor { display: inline-block; width: 2px; height: 12px; background: #fff; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px;}
         @keyframes blink { 50% { opacity: 0; } }
@@ -103,7 +106,7 @@
         }
         .trackpad-inner { width: 56px; height: 26px; background: radial-gradient(circle, #333, #0a0a0a); border-radius: 13px; }
 
-        /* 双字符全键盘 */
+        /* 键盘 */
         .keyboard { padding: 5px 2px 0 2px; }
         .key-row { display: flex; justify-content: center; margin-bottom: 5px; }
         .key-row:nth-child(1) { padding: 0 2%; }
@@ -113,19 +116,18 @@
         .key {
             background: linear-gradient(180deg, #333, #111); color: #fff; flex: 1; height: 28px; border-radius: 5px;
             margin: 0 2px; box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
-            border: 1px solid #000; cursor: pointer; user-select: none; position: relative;
+            border: 1px solid #000; cursor: pointer; position: relative;
             display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
         .main-char { font-size: 12px; transition: all 0.15s ease; color: #fff; z-index: 2; }
         .sub-char { position: absolute; top: 2px; right: 3px; font-size: 8px; color: #777; transition: all 0.15s ease; z-index: 1; }
         
-        /* 切换模式时的视觉变化 */
         .key.mode-active .main-char { position: absolute; top: 2px; right: 3px; font-size: 8px; color: #777; }
         .key.mode-active .sub-char { position: static; font-size: 13px; font-weight: bold; color: #fff; }
         
         .key.special { flex: 1.5; font-size: 10px; color: #888; }
         .key.space { flex: 4; font-size: 10px; color: #888; }
-        .key:active, .key.pressed { transform: translateY(1px); box-shadow: 0 1px 1px rgba(0,0,0,0.8); background: linear-gradient(180deg, #111, #333); }
+        .key.pressed { transform: translateY(1px); box-shadow: 0 1px 1px rgba(0,0,0,0.8); background: linear-gradient(180deg, #111, #333); }
         .key.active-mode { background: #00bfff; color: #fff; }
     </style>
 </head>
@@ -141,6 +143,12 @@
             <div class="status-bar">中国移动 <span id="clock">12:00</span></div>
             
             <div class="screen-content">
+                <!-- 全局搜索 -->
+                <div class="search-overlay" id="search-overlay">
+                    <div class="search-box">搜索: <span id="search-text"></span><span class="cursor"></span></div>
+                    <div style="font-size:12px; color:#888;">按 返回键 或 Del 退出</div>
+                </div>
+
                 <!-- 桌面 -->
                 <div class="app-grid" id="app-grid">
                     <div class="app-icon active" onclick="openApp('messages')">
@@ -193,7 +201,7 @@
                     <div style="color:#666; font-size:12px; text-align:center; margin-top:20px;">按123切数字，按Sym切运算符</div>
                 </div>
 
-                <!-- 其他简单应用 -->
+                <!-- 其他 -->
                 <div class="app-view" id="view-email">
                     <div class="app-header">邮件</div>
                     <div class="app-list"><div class="list-item"><strong>GitHub</strong><span>您的项目有新的 Star！</span></div></div>
@@ -266,17 +274,16 @@
         const icons = document.querySelectorAll('.app-icon');
         const appGrid = document.getElementById('app-grid');
         const views = document.querySelectorAll('.app-view');
-        const shortcutMap = {'m': 'messages', 'b': 'bbm', 'e': 'email', 'c': 'calendar', 's': 'settings'};
+        const searchOverlay = document.getElementById('search-overlay');
+        const searchTextEl = document.getElementById('search-text');
         
         let appState = 'home'; 
         let inputMode = 'letter'; 
         let msgText = ""; 
         let bbmText = "";
+        let searchText = "";
 
-        // 计算器状态
-        let calcDisplay = document.getElementById('calc-display');
-        let calcHistory = document.getElementById('calc-history');
-        let calcCurrentNum = '0', calcPrevNum = '', calcOperator = '', calcResetNext = false;
+        const shortcutMap = {'m': 'messages', 'b': 'bbm', 'e': 'email', 'c': 'calendar', 's': 'settings'};
 
         setInterval(() => {
             const now = new Date();
@@ -295,7 +302,9 @@
 
         function openApp(appId) {
             appGrid.style.display = 'none';
+            searchOverlay.classList.remove('active');
             views.forEach(v => v.classList.remove('active'));
+            
             const targetView = document.getElementById('view-' + appId);
             if (targetView) {
                 targetView.classList.add('active');
@@ -310,6 +319,12 @@
         }
 
         function goBack() {
+            if (appState === 'search') {
+                searchOverlay.classList.remove('active');
+                searchText = "";
+                appState = 'home';
+                return;
+            }
             views.forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.input-area').forEach(el => el.classList.remove('active'));
             appGrid.style.display = 'grid';
@@ -317,6 +332,7 @@
         }
 
         document.getElementById('btn-back').addEventListener('click', goBack);
+        document.getElementById('btn-back').addEventListener('touchstart', goBack);
 
         function updateChatDisplay(appId) {
             const displayEl = document.getElementById(appId + '-input');
@@ -324,21 +340,56 @@
             displayEl.innerHTML = text + '<span class="cursor"></span>';
         }
 
-        function sendMessage(appId) {
-            let text = appId === 'messages' ? msgText : bbmText;
-            if (text.trim() === '') return;
-            const listId = appId === 'messages' ? 'msg-list' : 'bbm-list';
-            const list = document.getElementById(listId);
-            const newItem = document.createElement('div');
-            newItem.className = 'list-item';
-            newItem.innerHTML = `<strong>我 (刚刚)</strong><span>${text}</span>`;
-            list.appendChild(newItem);
-            list.scrollTop = list.scrollHeight;
-            if (appId === 'messages') msgText = ""; else bbmText = "";
-            updateChatDisplay(appId);
+        function processKeyInput(char) {
+            if (appState === 'home') {
+                const lowerChar = char.toLowerCase();
+                if (shortcutMap[lowerChar] && inputMode === 'letter') {
+                    openApp(shortcutMap[lowerChar]);
+                } else {
+                    // 打开全局搜索
+                    appState = 'search';
+                    searchOverlay.classList.add('active');
+                    searchText = char;
+                    searchTextEl.innerText = searchText;
+                }
+            } else if (appState === 'search') {
+                searchText += char;
+                searchTextEl.innerText = searchText;
+            } else if (appState === 'messages') {
+                msgText += char; updateChatDisplay('messages');
+            } else if (appState === 'bbm') {
+                bbmText += char; updateChatDisplay('bbm');
+            } else if (appState === 'calculator') {
+                if (!isNaN(char) || char === '.' || ['+', '-', '*', '/'].includes(char)) calcInput(char);
+            }
         }
 
-        function calcInput(val) {
+        function processSpecialKey(action) {
+            if (action === 'del') {
+                if (appState === 'messages') {
+                    msgText = msgText.slice(0, -1); updateChatDisplay('messages');
+                } else if (appState === 'bbm') {
+                    bbmText = bbmText.slice(0, -1); updateChatDisplay('bbm');
+                } else if (appState === 'search') {
+                    searchText = searchText.slice(0, -1);
+                    if (searchText === '') { goBack(); } 
+                    else { searchTextEl.innerText = searchText; }
+                } else if (appState === 'calculator') {
+                    calcCurrentNum = calcCurrentNum.length > 1 ? calcCurrentNum.slice(0, -1) : '0';
+                    calcDisplay.innerText = calcCurrentNum;
+                }
+            } else if (action === 'enter') {
+                if (appState === 'messages') sendMessage('messages');
+                else if (appState === 'bbm') sendMessage('bbm');
+                else if (appState === 'calculator') calcInput('=');
+            }
+        }
+
+        // 计算器逻辑
+        let calcDisplay = document.getElementById('calc-display');
+        let calcHistory = document.getElementById('calc-history');
+        let calcCurrentNum = '0', calcPrevNum = '', calcOperator = '', calcResetNext = false;
+        function calcInput(val) { /* 省略具体实现，跟之前一样 */ 
             if (val === '=') {
                 if (calcOperator && calcPrevNum) {
                     let result = 0, prev = parseFloat(calcPrevNum), curr = parseFloat(calcCurrentNum);
@@ -365,6 +416,19 @@
             calcDisplay.innerText = calcCurrentNum;
         }
 
+        function sendMessage(appId) {
+            let text = appId === 'messages' ? msgText : bbmText;
+            if (text.trim() === '') return;
+            const list = document.getElementById(appId === 'messages' ? 'msg-list' : 'bbm-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'list-item';
+            newItem.innerHTML = `<strong>我 (刚刚)</strong><span>${text}</span>`;
+            list.appendChild(newItem);
+            list.scrollTop = list.scrollHeight;
+            if (appId === 'messages') msgText = ""; else bbmText = "";
+            updateChatDisplay(appId);
+        }
+
         function toggleKeyboardMode(mode) {
             inputMode = (inputMode === mode) ? 'letter' : mode;
             document.getElementById('key-123').classList.remove('active-mode');
@@ -380,39 +444,16 @@
             }
         }
 
-        function processKeyInput(char) {
-            if (appState === 'home') {
-                const lowerChar = char.toLowerCase();
-                if (shortcutMap[lowerChar] && inputMode === 'letter') openApp(shortcutMap[lowerChar]);
-            } else if (appState === 'messages') {
-                msgText += char; updateChatDisplay('messages');
-            } else if (appState === 'bbm') {
-                bbmText += char; updateChatDisplay('bbm');
-            } else if (appState === 'calculator') {
-                if (!isNaN(char) || char === '.' || ['+', '-', '*', '/'].includes(char)) calcInput(char);
-            }
-        }
-
-        function processSpecialKey(action) {
-            if (action === 'del') {
-                if (appState === 'messages') {
-                    msgText = msgText.slice(0, -1); updateChatDisplay('messages');
-                } else if (appState === 'bbm') {
-                    bbmText = bbmText.slice(0, -1); updateChatDisplay('bbm');
-                } else if (appState === 'calculator') {
-                    calcCurrentNum = calcCurrentNum.length > 1 ? calcCurrentNum.slice(0, -1) : '0';
-                    calcDisplay.innerText = calcCurrentNum;
-                }
-            } else if (action === 'enter') {
-                if (appState === 'messages') sendMessage('messages');
-                else if (appState === 'bbm') sendMessage('bbm');
-                else if (appState === 'calculator') calcInput('=');
-            }
-        }
-
-        document.getElementById('keyboard').addEventListener('click', (e) => {
+        // ====== 核心修改：移动端和PC端双兼容的键盘点击事件 ======
+        const keyboard = document.getElementById('keyboard');
+        
+        function handleKeyPress(e) {
             const keyEl = e.target.closest('.key');
             if (!keyEl) return;
+            
+            // 阻止默认事件（防止触发双击缩放或选中）
+            if(e.cancelable) e.preventDefault();
+
             keyEl.classList.add('pressed');
             setTimeout(() => keyEl.classList.remove('pressed'), 100);
 
@@ -426,9 +467,13 @@
             if (inputMode === 'symbol' && keyEl.hasAttribute('data-sym')) char = keyEl.getAttribute('data-sym');
 
             if (char) processKeyInput(char);
-        });
+        }
 
-        // 触控板滑动与点击
+        // 同时绑定 touchstart 和 mousedown，保证无论什么设备点下去都有反应
+        keyboard.addEventListener('touchstart', handleKeyPress, {passive: false});
+        keyboard.addEventListener('mousedown', handleKeyPress);
+
+        // ====== 触控板滑动 ======
         let startX = 0, startY = 0, isSwiping = false;
         const trackpad = document.getElementById('trackpad');
 
@@ -463,8 +508,13 @@
             }
             startX = 0; startY = 0;
         }, {passive: false});
+        
+        trackpad.addEventListener('mousedown', () => {
+            if (appState === 'home') openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
+            else if (appState === 'calculator') calcInput('=');
+        });
 
-        // 实体键盘
+        // 物理键盘监听
         document.addEventListener('keydown', (e) => {
             if (appState === 'home') {
                 let cols = 4;
