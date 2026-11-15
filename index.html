@@ -3,200 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BlackBerry OS 7 Simulator</title>
+    <title>BlackBerry Bold OS 7 Simulator</title>
     <style>
-        /* ================= CSS 部分 ================= */
+        :root {
+            --bb-bg: #111;
+            --bb-metal: linear-gradient(180deg, #2a2a2a, #111);
+            --bb-screen: #000;
+            --bb-blue: #00bfff;
+        }
+
         body {
-            background-color: #111;
+            background-color: #050505;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            font-family: Arial, sans-serif;
-            overflow: hidden; /* 禁止整个网页上下滑动 */
-            touch-action: none; /* 禁止浏览器默认的触摸手势 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            touch-action: none;
         }
 
+        /* 手机整体外壳 - 横宽比例 */
         .blackberry-device {
-            width: 100%;
-            max-width: 380px; /* 手机上的最大宽度 */
-            height: 95vh; /* 占据屏幕高度 */
-            max-height: 750px;
-            background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
-            border-radius: 15px;
-            padding: 10px;
+            width: 96vw;
+            max-width: 420px;
+            background: var(--bb-metal);
+            border-radius: 20px;
+            padding: 15px 10px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
             border: 1px solid #333;
         }
 
-        .top-bezel { text-align: center; padding-bottom: 5px; }
-        .speaker { width: 60px; height: 4px; background: #333; margin: 0 auto; border-radius: 2px;}
-        .logo { color: #ccc; font-size: 10px; margin-top: 5px; font-weight: bold; letter-spacing: 2px;}
+        .top-bezel { text-align: center; padding-bottom: 8px; }
+        .speaker { width: 50px; height: 6px; background: #000; margin: 0 auto; border-radius: 3px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);}
+        .logo { color: #666; font-size: 11px; margin-top: 5px; font-weight: bold; letter-spacing: 2px;}
 
-        .screen {
-            background: #000;
-            flex-grow: 1; /* 屏幕自动撑满中间区域 */
-            border: 2px solid #333;
-            border-radius: 5px;
+        /* 宽屏屏幕 */
+        .screen-container {
+            width: 100%;
+            aspect-ratio: 4 / 3; /* 经典黑莓横屏比例 */
+            background: var(--bb-screen);
+            border: 2px solid #000;
+            border-radius: 4px;
             position: relative;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
+        /* 状态栏 */
         .status-bar {
-            background: #111;
-            color: #888;
-            font-size: 12px;
-            padding: 3px 10px;
+            background: linear-gradient(180deg, #222, #111);
+            color: #aaa;
+            font-size: 11px;
+            padding: 3px 8px;
             display: flex;
             justify-content: space-between;
+            border-bottom: 1px solid #333;
+            z-index: 10;
         }
 
+        /* 主屏幕内容区 */
+        .screen-content {
+            flex-grow: 1;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        /* ====== 桌面图标网格 ====== */
         .app-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            padding: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 15px;
             align-content: start;
+            height: 100%;
+            box-sizing: border-box;
         }
 
         .app-icon {
-            background: #333;
-            aspect-ratio: 1 / 1; /* 保持正方形 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px;
+            border: 2px solid transparent;
             border-radius: 8px;
+            transition: all 0.1s;
+        }
+
+        .app-icon.active {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--bb-blue);
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+        }
+
+        .icon-img {
+            width: 36px;
+            height: 36px;
+            background: #444;
+            border-radius: 8px;
+            margin-bottom: 5px;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-size: 18px;
+            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5);
             color: white;
+        }
+        
+        .icon-text { color: #fff; font-size: 10px; text-align: center; white-space: nowrap;}
+
+        /* ====== App 界面通用样式 ====== */
+        .app-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: #000;
+        }
+        
+        .app-view.active { display: flex; }
+        
+        .app-header {
+            background: linear-gradient(180deg, #333, #111);
+            color: #fff;
+            padding: 8px;
             font-size: 14px;
-            border: 2px solid transparent;
-            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #444;
         }
 
-        /* 选中状态 */
-        .app-icon.active {
-            border-color: #00bfff; 
-            background: #222;
-            box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
-            transform: scale(1.05);
-            transition: transform 0.1s;
+        .app-list { flex-grow: 1; overflow-y: auto; }
+        
+        .list-item {
+            padding: 10px;
+            border-bottom: 1px solid #222;
+            color: #fff;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
         }
+        
+        .list-item strong { font-size: 13px; color: #eee; margin-bottom: 3px;}
+        .list-item span { color: #888; font-size: 11px;}
 
+        /* ====== 底部按键区 ====== */
         .nav-row {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
-            padding: 15px 10px;
+            padding: 12px 0;
+            margin-top: 5px;
         }
 
-        .call-btn { width: 60px; height: 30px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 12px; color: #fff;}
-        .call-btn.green { background: #008000; }
-        .call-btn.red { background: #cc0000; }
+        .nav-btn { 
+            width: 40px; height: 22px; border-radius: 11px; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 11px; color: #fff; font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        .btn-green { background: #008000; }
+        .btn-red { background: #cc0000; }
+        .btn-black { background: #222; border: 1px solid #444; color: #aaa; }
 
-        /* 模拟的光学触控板 */
+        /* 经典光学触控板 */
         .trackpad {
             width: 70px;
-            height: 40px;
-            background: #222;
-            border-radius: 20px;
-            box-shadow: inset 0 3px 8px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1);
+            height: 36px;
+            background: #1a1a1a;
+            border-radius: 18px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.1);
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            border: 1px solid #333;
         }
 
         .trackpad-inner {
-            width: 50px;
-            height: 20px;
-            background: radial-gradient(circle, #444, #111);
-            border-radius: 10px;
+            width: 56px;
+            height: 26px;
+            background: radial-gradient(circle, #333, #0a0a0a);
+            border-radius: 13px;
         }
 
-        .keyboard { padding: 5px 0 0 0; }
-        .key-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 5px; }
-        .key-row span {
-            background: #222;
-            color: #666;
-            width: 12%;
-            height: 25px;
-            border-radius: 4px;
+        /* ====== 全 QWERTY 键盘 ====== */
+        .keyboard { padding: 5px 2px 0 2px; }
+        .key-row { 
+            display: flex; 
+            justify-content: center; 
+            margin-bottom: 5px; 
+        }
+        
+        .key-row:nth-child(1) { padding: 0 2%; }
+        .key-row:nth-child(2) { padding: 0 6%; }
+        .key-row:nth-child(3) { padding: 0 12%; }
+        
+        .key {
+            background: linear-gradient(180deg, #333, #111);
+            color: #fff;
+            flex: 1;
+            height: 28px;
+            border-radius: 5px;
+            margin: 0 2px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 14px;
-            box-shadow: 0 2px 2px rgba(0,0,0,0.5);
+            font-size: 12px;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid #000;
         }
+        
+        /* 特殊功能键 */
+        .key.special { flex: 1.5; font-size: 10px; color: #888; }
+        .key.space { flex: 4; }
     </style>
 </head>
 <body>
 
-    <!-- ================= HTML 部分 ================= -->
     <div class="blackberry-device">
         <div class="top-bezel">
             <div class="speaker"></div>
             <div class="logo">BlackBerry</div>
         </div>
 
-        <!-- 屏幕区域 -->
-        <div class="screen" id="screen-area">
-            <div class="status-bar">中国移动 3G <span class="time">12:00</span></div>
-            <div class="app-grid" id="app-grid"></div>
+        <!-- 屏幕 -->
+        <div class="screen-container" id="screen">
+            <div class="status-bar">中国移动 <span id="clock">12:00</span></div>
+            
+            <div class="screen-content">
+                <!-- 桌面 -->
+                <div class="app-grid" id="app-grid">
+                    <div class="app-icon active" onclick="openApp('messages')">
+                        <div class="icon-img" style="background:#4CAF50;">💬</div>
+                        <div class="icon-text">短信</div>
+                    </div>
+                    <div class="app-icon" onclick="openApp('bbm')">
+                        <div class="icon-img" style="background:#0088cc;">BBM</div>
+                        <div class="icon-text">BBM</div>
+                    </div>
+                    <div class="app-icon" onclick="openApp('email')">
+                        <div class="icon-img" style="background:#f44336;">✉️</div>
+                        <div class="icon-text">邮件</div>
+                    </div>
+                    <div class="app-icon" onclick="openApp('calendar')">
+                        <div class="icon-img" style="background:#ff9800;">📅</div>
+                        <div class="icon-text">日历</div>
+                    </div>
+                    <div class="app-icon" onclick="openApp('browser')">
+                        <div class="icon-img" style="background:#2196F3;">🌐</div>
+                        <div class="icon-text">浏览器</div>
+                    </div>
+                    <div class="app-icon" onclick="openApp('settings')">
+                        <div class="icon-img" style="background:#607d8b;">⚙️</div>
+                        <div class="icon-text">设置</div>
+                    </div>
+                </div>
+
+                <!-- 短信界面 -->
+                <div class="app-view" id="view-messages">
+                    <div class="app-header">短信</div>
+                    <div class="app-list">
+                        <div class="list-item"><strong>老妈</strong><span>晚饭回家吃吗？别老玩手机了。</span></div>
+                        <div class="list-item"><strong>10086</strong><span>尊敬的客户，您本月流量已使用80%。</span></div>
+                        <div class="list-item"><strong>老板</strong><span>明天上午的会议改到十点。</span></div>
+                    </div>
+                </div>
+
+                <!-- BBM 界面 -->
+                <div class="app-view" id="view-bbm">
+                    <div class="app-header">BlackBerry Messenger</div>
+                    <div class="app-list">
+                        <div class="list-item"><strong>Mike L.</strong><span>PIN: 24A3B4C5 - 周末去打球吗？</span></div>
+                        <div class="list-item"><strong>Sarah J.</strong><span>PIN: 99F8E7D6 - 已经发送文件给你了。</span></div>
+                    </div>
+                </div>
+
+                <!-- 邮件界面 -->
+                <div class="app-view" id="view-email">
+                    <div class="app-header">邮件</div>
+                    <div class="app-list">
+                        <div class="list-item"><strong>GitHub</strong><span>[GitHub] 您的项目 blackberry-simulator 有新的 Star！</span></div>
+                        <div class="list-item"><strong>Apple Support</strong><span>您的 Apple ID 在陌生设备登录。</span></div>
+                    </div>
+                </div>
+                
+                <!-- 日历界面 -->
+                <div class="app-view" id="view-calendar">
+                    <div class="app-header">日历 - 10月26日</div>
+                    <div class="app-list">
+                        <div class="list-item"><strong>10:00</strong><span>项目评审会议</span></div>
+                        <div class="list-item"><strong>14:30</strong><span>与设计团队沟通</span></div>
+                        <div class="list-item"><strong>19:00</strong><span>健身房锻炼</span></div>
+                    </div>
+                </div>
+                
+                <!-- 浏览器界面 -->
+                <div class="app-view" id="view-browser">
+                    <div class="app-header">浏览器</div>
+                    <div class="app-list">
+                        <div class="list-item"><strong>收藏夹</strong><span>百度 (www.baidu.com)</span></div>
+                        <div class="list-item"><strong>收藏夹</strong><span>黑莓论坛 (bbs.maxpda.com)</span></div>
+                    </div>
+                </div>
+
+                <!-- 设置界面 -->
+                <div class="app-view" id="view-settings">
+                    <div class="app-header">设置</div>
+                    <div class="app-list">
+                        <div class="list-item"><strong>网络连接</strong><span>Wi-Fi / 移动网络 / 蓝牙</span></div>
+                        <div class="list-item"><strong>屏幕与键盘</strong><span>亮度、背光时间、字体大小</span></div>
+                        <div class="list-item"><strong>安全与隐私</strong><span>密码、加密、SIM卡</span></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 底部微操区域 -->
+        <!-- 导航键区 -->
         <div class="nav-row">
-            <div class="call-btn green" id="btn-call">接听</div>
-            <!-- 这个圆圈就是你的虚拟光学触控板 -->
+            <div class="nav-btn btn-green">接听</div>
+            <div class="nav-btn btn-black">菜单</div>
             <div class="trackpad" id="trackpad">
                 <div class="trackpad-inner"></div>
             </div>
-            <div class="call-btn red" id="btn-end">挂断</div>
+            <div class="nav-btn btn-black" id="btn-back">返回</div>
+            <div class="nav-btn btn-red">挂断</div>
         </div>
 
-        <!-- 经典全键盘 -->
+        <!-- 全键盘区 -->
         <div class="keyboard">
-            <div class="key-row"><span>Q</span><span>W</span><span>E</span><span>R</span><span>T</span><span>Y</span></div>
-            <div class="key-row"><span>A</span><span>S</span><span>D</span><span>F</span><span>G</span><span>H</span></div>
-            <div class="key-row"><span>Z</span><span>X</span><span>C</span><span>V</span><span>B</span><span>N</span></div>
+            <div class="key-row">
+                <div class="key">Q</div><div class="key">W</div><div class="key">E</div><div class="key">R</div><div class="key">T</div><div class="key">Y</div><div class="key">U</div><div class="key">I</div><div class="key">O</div><div class="key">P</div>
+            </div>
+            <div class="key-row">
+                <div class="key">A</div><div class="key">S</div><div class="key">D</div><div class="key">F</div><div class="key">G</div><div class="key">H</div><div class="key">J</div><div class="key">K</div><div class="key">L</div>
+            </div>
+            <div class="key-row">
+                <div class="key special">Shift</div><div class="key">Z</div><div class="key">X</div><div class="key">C</div><div class="key">V</div><div class="key">B</div><div class="key">N</div><div class="key">M</div><div class="key special">Del</div>
+            </div>
+            <div class="key-row">
+                <div class="key special">Sym</div>
+                <div class="key space">Space</div>
+                <div class="key special">Enter</div>
+            </div>
         </div>
     </div>
 
-    <!-- ================= JavaScript 部分 ================= -->
     <script>
-        const apps = [
-            { name: "短信", id: "messages" },
-            { name: "邮件", id: "email" },
-            { name: "BBM", id: "bbm" },
-            { name: "浏览器", id: "browser" },
-            { name: "音乐", id: "media" },
-            { name: "设置", id: "settings" }
-        ];
-
         let currentIndex = 0;
-        const grid = document.getElementById('app-grid');
-        const trackpad = document.getElementById('trackpad');
-        const screenArea = document.getElementById('screen-area');
-
-        // 1. 渲染图标
-        apps.forEach((app, index) => {
-            const div = document.createElement('div');
-            div.className = 'app-icon';
-            if (index === 0) div.classList.add('active');
-            div.innerText = app.name;
-            div.id = app.id;
-            // 允许直接点击图标打开
-            div.addEventListener('click', () => openApp(app.id));
-            grid.appendChild(div);
-        });
-
         const icons = document.querySelectorAll('.app-icon');
+        const trackpad = document.getElementById('trackpad');
+        const btnBack = document.getElementById('btn-back');
+        const views = document.querySelectorAll('.app-view');
+        const appGrid = document.getElementById('app-grid');
 
-        // 2. 更新焦点高亮
+        // 更新时间
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = 
+                now.getHours().toString().padStart(2, '0') + ':' + 
+                now.getMinutes().toString().padStart(2, '0');
+        }, 1000);
+
+        // 更新焦点高亮
         function updateFocus(newIndex) {
             icons[currentIndex].classList.remove('active');
             currentIndex = newIndex;
@@ -205,22 +380,40 @@
             icons[currentIndex].classList.add('active');
         }
 
-        // ========== 3. 移动端手势逻辑（核心） ==========
+        // 打开 App
+        function openApp(appId) {
+            appGrid.style.display = 'none';
+            views.forEach(v => v.classList.remove('active'));
+            const targetView = document.getElementById('view-' + appId);
+            if (targetView) targetView.classList.add('active');
+        }
+
+        // 返回桌面
+        function goBack() {
+            views.forEach(v => v.classList.remove('active'));
+            appGrid.style.display = 'grid';
+        }
+
+        // 绑定返回键
+        btnBack.addEventListener('click', goBack);
+
+        // ========== 触控板手势 ==========
         let startX = 0, startY = 0;
         let isSwiping = false;
 
-        // 给触控板绑定触摸事件
         trackpad.addEventListener('touchstart', handleTouchStart, {passive: false});
         trackpad.addEventListener('touchmove', handleTouchMove, {passive: false});
         trackpad.addEventListener('touchend', handleTouchEnd, {passive: false});
 
-        // 兼容电脑端鼠标操作触控板
+        // 电脑端点击触控板
         trackpad.addEventListener('click', () => {
-            openApp(apps[currentIndex].id);
+            if (appGrid.style.display !== 'none') {
+                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
+            }
         });
 
         function handleTouchStart(e) {
-            e.preventDefault(); // 阻止屏幕滚动
+            e.preventDefault();
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
             isSwiping = false;
@@ -229,94 +422,51 @@
         function handleTouchMove(e) {
             e.preventDefault();
             if (startX === 0 || startY === 0) return;
-
-            let currentX = e.touches[0].clientX;
-            let currentY = e.touches[0].clientY;
-            let deltaX = currentX - startX;
-            let deltaY = currentY - startY;
             
-            // 灵敏度阈值（滑动超过20像素触发）
-            const threshold = 20;
-
-            if (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold) {
-                isSwiping = true; // 标记这是一次滑动
-                let cols = 3;
+            let deltaX = e.touches[0].clientX - startX;
+            let deltaY = e.touches[0].clientY - startY;
+            
+            // 滑动阈值
+            if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
+                isSwiping = true;
+                let cols = 4; // 现在是4列
                 
                 if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    // 左右滑动
                     if (deltaX > 0) updateFocus(currentIndex + 1);
                     else updateFocus(currentIndex - 1);
                 } else {
-                    // 上下滑动
                     if (deltaY > 0) updateFocus(currentIndex + cols);
                     else updateFocus(currentIndex - cols);
                 }
                 
-                // 重置起点，为了支持长距离连续滑动
-                startX = currentX;
-                startY = currentY;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
             }
         }
 
         function handleTouchEnd(e) {
             e.preventDefault();
-            // 如果手指抬起，且没有发生滑动，说明是“按压”触控板
-            if (!isSwiping) {
-                openApp(apps[currentIndex].id);
+            if (!isSwiping && appGrid.style.display !== 'none') {
+                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
             }
             startX = 0;
             startY = 0;
         }
 
-        // ========== 4. 补充：允许在大屏幕上直接用手指滑动 ==========
-        let screenStartX = 0;
-        screenArea.addEventListener('touchstart', (e) => { screenStartX = e.touches[0].clientX; }, {passive: true});
-        screenArea.addEventListener('touchend', (e) => {
-            let delta = e.changedTouches[0].clientX - screenStartX;
-            // 在大屏幕上左右滑也可以切换焦点
-            if (delta > 30) updateFocus(currentIndex - 1);
-            else if (delta < -30) updateFocus(currentIndex + 1);
-        }, {passive: true});
-
-        // ========== 5. 键盘监听 (适配电脑端) ==========
+        // ========== 电脑端键盘适配 ==========
         document.addEventListener('keydown', (e) => {
-            let cols = 3;
+            if (appGrid.style.display === 'none') return; // 如果在App内，方向键暂不控制图标
+            let cols = 4;
             if (e.key === 'ArrowRight') updateFocus(currentIndex + 1);
             else if (e.key === 'ArrowLeft') updateFocus(currentIndex - 1);
             else if (e.key === 'ArrowDown') updateFocus(currentIndex + cols);
             else if (e.key === 'ArrowUp') updateFocus(currentIndex - cols);
-            else if (e.key === 'Enter') openApp(apps[currentIndex].id);
-        });
-
-        // ========== 6. 打开应用的逻辑 ==========
-        function openApp(appId) {
-            const screen = document.querySelector('.screen');
-            if (appId === 'messages') {
-                // 还原经典短信界面
-                screen.innerHTML = `
-                    <div class="status-bar" style="justify-content: flex-start; gap: 15px;">
-                        <span onclick="location.reload()" style="cursor:pointer;color:#00bfff;font-weight:bold;">&lt; 返回</span>
-                        <span>短信</span>
-                    </div>
-                    <div style="color:white; padding: 15px; font-size: 14px; overflow-y: auto;">
-                        <div style="margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-                            <b>老妈</b><br>
-                            <span style="color:#888;">晚饭回家吃吗？</span>
-                        </div>
-                        <div style="margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-                            <b>10086</b><br>
-                            <span style="color:#888;">您本月流量已使用80%。</span>
-                        </div>
-                        <div style="margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-                            <b>BBM好友</b><br>
-                            <span style="color:#888;">PIN: 2A3B4C5D</span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                alert("【" + appId + "】 正在开发中...\n你可以通过修改代码自己还原它！");
+            else if (e.key === 'Enter') {
+                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
+            } else if (e.key === 'Escape' || e.key === 'Backspace') {
+                goBack();
             }
-        }
+        });
     </script>
 </body>
 </html>
