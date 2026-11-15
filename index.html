@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BlackBerry Bold OS 7 Simulator</title>
+    <title>BlackBerry Bold OS 7 - Functional Keyboard</title>
     <style>
         :root {
             --bb-bg: #111;
@@ -24,7 +24,6 @@
             touch-action: none;
         }
 
-        /* 手机整体外壳 - 横宽比例 */
         .blackberry-device {
             width: 96vw;
             max-width: 420px;
@@ -36,6 +35,7 @@
             flex-direction: column;
             box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
             border: 1px solid #333;
+            position: relative;
         }
 
         .top-bezel { text-align: center; padding-bottom: 8px; }
@@ -45,7 +45,7 @@
         /* 宽屏屏幕 */
         .screen-container {
             width: 100%;
-            aspect-ratio: 4 / 3; /* 经典黑莓横屏比例 */
+            aspect-ratio: 4 / 3; 
             background: var(--bb-screen);
             border: 2px solid #000;
             border-radius: 4px;
@@ -56,7 +56,6 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
-        /* 状态栏 */
         .status-bar {
             background: linear-gradient(180deg, #222, #111);
             color: #aaa;
@@ -68,14 +67,26 @@
             z-index: 10;
         }
 
-        /* 主屏幕内容区 */
         .screen-content {
             flex-grow: 1;
             position: relative;
             overflow-y: auto;
         }
 
-        /* ====== 桌面图标网格 ====== */
+        /* 全局搜索层 */
+        .search-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 20;
+            display: none;
+            padding: 20px;
+            color: #fff;
+        }
+        .search-overlay.active { display: block; }
+        .search-box { border-bottom: 2px solid var(--bb-blue); padding-bottom: 5px; font-size: 16px; margin-bottom: 10px;}
+
+        /* 桌面网格 */
         .app-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -104,125 +115,90 @@
         }
 
         .icon-img {
-            width: 36px;
-            height: 36px;
-            background: #444;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5);
-            color: white;
+            width: 36px; height: 36px; background: #444; border-radius: 8px;
+            margin-bottom: 5px; display: flex; justify-content: center; align-items: center;
+            font-size: 18px; box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5); color: white;
         }
-        
         .icon-text { color: #fff; font-size: 10px; text-align: center; white-space: nowrap;}
 
-        /* ====== App 界面通用样式 ====== */
+        /* App 界面通用 */
         .app-view {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            background: #000;
+            display: none; flex-direction: column; height: 100%; background: #000;
         }
-        
         .app-view.active { display: flex; }
-        
         .app-header {
-            background: linear-gradient(180deg, #333, #111);
-            color: #fff;
-            padding: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
+            background: linear-gradient(180deg, #333, #111); color: #fff;
+            padding: 8px; font-size: 14px; font-weight: bold; text-align: center;
             border-bottom: 1px solid #444;
         }
-
-        .app-list { flex-grow: 1; overflow-y: auto; }
+        .app-list { flex-grow: 1; overflow-y: auto; padding-bottom: 40px;}
         
         .list-item {
-            padding: 10px;
-            border-bottom: 1px solid #222;
-            color: #fff;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
+            padding: 10px; border-bottom: 1px solid #222;
+            color: #fff; font-size: 12px; display: flex; flex-direction: column;
         }
-        
         .list-item strong { font-size: 13px; color: #eee; margin-bottom: 3px;}
         .list-item span { color: #888; font-size: 11px;}
 
-        /* ====== 底部按键区 ====== */
-        .nav-row {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 12px 0;
-            margin-top: 5px;
+        /* 输入区 (真实打字) */
+        .input-area {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: #111; border-top: 1px solid #333;
+            display: none; padding: 5px;
+        }
+        .input-area.active { display: flex; }
+        .chat-input {
+            width: 100%; background: #000; color: #fff;
+            border: 1px solid #444; padding: 8px; font-size: 12px;
+            border-radius: 3px; outline: none;
         }
 
+        /* 导航键 */
+        .nav-row {
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 12px 0; margin-top: 5px;
+        }
         .nav-btn { 
             width: 40px; height: 22px; border-radius: 11px; 
             display: flex; justify-content: center; align-items: center; 
             font-size: 11px; color: #fff; font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8); cursor: pointer;
         }
         .btn-green { background: #008000; }
         .btn-red { background: #cc0000; }
         .btn-black { background: #222; border: 1px solid #444; color: #aaa; }
 
-        /* 经典光学触控板 */
         .trackpad {
-            width: 70px;
-            height: 36px;
-            background: #1a1a1a;
-            border-radius: 18px;
+            width: 70px; height: 36px; background: #1a1a1a; border-radius: 18px;
             box-shadow: inset 0 3px 6px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
             border: 1px solid #333;
         }
+        .trackpad-inner { width: 56px; height: 26px; background: radial-gradient(circle, #333, #0a0a0a); border-radius: 13px; }
 
-        .trackpad-inner {
-            width: 56px;
-            height: 26px;
-            background: radial-gradient(circle, #333, #0a0a0a);
-            border-radius: 13px;
-        }
-
-        /* ====== 全 QWERTY 键盘 ====== */
+        /* 全键盘 */
         .keyboard { padding: 5px 2px 0 2px; }
-        .key-row { 
-            display: flex; 
-            justify-content: center; 
-            margin-bottom: 5px; 
-        }
-        
+        .key-row { display: flex; justify-content: center; margin-bottom: 5px; }
         .key-row:nth-child(1) { padding: 0 2%; }
         .key-row:nth-child(2) { padding: 0 6%; }
         .key-row:nth-child(3) { padding: 0 12%; }
         
         .key {
             background: linear-gradient(180deg, #333, #111);
-            color: #fff;
-            flex: 1;
-            height: 28px;
-            border-radius: 5px;
-            margin: 0 2px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 12px;
-            box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
-            border: 1px solid #000;
+            color: #fff; flex: 1; height: 28px; border-radius: 5px;
+            margin: 0 2px; display: flex; justify-content: center; align-items: center;
+            font-size: 12px; box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid #000; cursor: pointer; user-select: none;
+        }
+        /* 键盘按下的动画效果 */
+        .key:active, .key.pressed { 
+            transform: translateY(1px); box-shadow: 0 1px 1px rgba(0,0,0,0.8); 
+            background: linear-gradient(180deg, #111, #333); 
         }
         
-        /* 特殊功能键 */
         .key.special { flex: 1.5; font-size: 10px; color: #888; }
         .key.space { flex: 4; }
+        .key.shift-on { background: #00bfff; color: #fff; }
     </style>
 </head>
 <body>
@@ -233,93 +209,86 @@
             <div class="logo">BlackBerry</div>
         </div>
 
-        <!-- 屏幕 -->
-        <div class="screen-container" id="screen">
+        <div class="screen-container">
             <div class="status-bar">中国移动 <span id="clock">12:00</span></div>
             
             <div class="screen-content">
+                <!-- 全局搜索层 -->
+                <div class="search-overlay" id="search-overlay">
+                    <div class="search-box" id="search-text">搜索: </div>
+                    <div style="font-size:12px; color:#888;">按 ESC 或 返回键 退出搜索</div>
+                </div>
+
                 <!-- 桌面 -->
                 <div class="app-grid" id="app-grid">
                     <div class="app-icon active" onclick="openApp('messages')">
-                        <div class="icon-img" style="background:#4CAF50;">💬</div>
-                        <div class="icon-text">短信</div>
+                        <div class="icon-img" style="background:#4CAF50;">💬</div><div class="icon-text">短信(M)</div>
                     </div>
                     <div class="app-icon" onclick="openApp('bbm')">
-                        <div class="icon-img" style="background:#0088cc;">BBM</div>
-                        <div class="icon-text">BBM</div>
+                        <div class="icon-img" style="background:#0088cc;">BBM</div><div class="icon-text">BBM(B)</div>
                     </div>
                     <div class="app-icon" onclick="openApp('email')">
-                        <div class="icon-img" style="background:#f44336;">✉️</div>
-                        <div class="icon-text">邮件</div>
+                        <div class="icon-img" style="background:#f44336;">✉️</div><div class="icon-text">邮件(E)</div>
                     </div>
                     <div class="app-icon" onclick="openApp('calendar')">
-                        <div class="icon-img" style="background:#ff9800;">📅</div>
-                        <div class="icon-text">日历</div>
+                        <div class="icon-img" style="background:#ff9800;">📅</div><div class="icon-text">日历(C)</div>
                     </div>
                     <div class="app-icon" onclick="openApp('browser')">
-                        <div class="icon-img" style="background:#2196F3;">🌐</div>
-                        <div class="icon-text">浏览器</div>
+                        <div class="icon-img" style="background:#2196F3;">🌐</div><div class="icon-text">浏览器(W)</div>
                     </div>
                     <div class="app-icon" onclick="openApp('settings')">
-                        <div class="icon-img" style="background:#607d8b;">⚙️</div>
-                        <div class="icon-text">设置</div>
+                        <div class="icon-img" style="background:#607d8b;">⚙️</div><div class="icon-text">设置(S)</div>
                     </div>
                 </div>
 
                 <!-- 短信界面 -->
                 <div class="app-view" id="view-messages">
                     <div class="app-header">短信</div>
-                    <div class="app-list">
+                    <div class="app-list" id="msg-list">
                         <div class="list-item"><strong>老妈</strong><span>晚饭回家吃吗？别老玩手机了。</span></div>
                         <div class="list-item"><strong>10086</strong><span>尊敬的客户，您本月流量已使用80%。</span></div>
-                        <div class="list-item"><strong>老板</strong><span>明天上午的会议改到十点。</span></div>
+                    </div>
+                    <div class="input-area" id="msg-input-area">
+                        <input type="text" class="chat-input" id="msg-input" placeholder="输入新短信，按 Enter 发送..." readonly>
                     </div>
                 </div>
 
                 <!-- BBM 界面 -->
                 <div class="app-view" id="view-bbm">
                     <div class="app-header">BlackBerry Messenger</div>
-                    <div class="app-list">
+                    <div class="app-list" id="bbm-list">
                         <div class="list-item"><strong>Mike L.</strong><span>PIN: 24A3B4C5 - 周末去打球吗？</span></div>
-                        <div class="list-item"><strong>Sarah J.</strong><span>PIN: 99F8E7D6 - 已经发送文件给你了。</span></div>
+                    </div>
+                    <div class="input-area" id="bbm-input-area">
+                        <input type="text" class="chat-input" id="bbm-input" placeholder="输入 BBM 消息，按 Enter 发送..." readonly>
                     </div>
                 </div>
 
-                <!-- 邮件界面 -->
                 <div class="app-view" id="view-email">
                     <div class="app-header">邮件</div>
                     <div class="app-list">
-                        <div class="list-item"><strong>GitHub</strong><span>[GitHub] 您的项目 blackberry-simulator 有新的 Star！</span></div>
-                        <div class="list-item"><strong>Apple Support</strong><span>您的 Apple ID 在陌生设备登录。</span></div>
+                        <div class="list-item"><strong>GitHub</strong><span>[GitHub] 您的项目有新的 Star！</span></div>
                     </div>
                 </div>
-                
-                <!-- 日历界面 -->
+
                 <div class="app-view" id="view-calendar">
                     <div class="app-header">日历 - 10月26日</div>
                     <div class="app-list">
                         <div class="list-item"><strong>10:00</strong><span>项目评审会议</span></div>
-                        <div class="list-item"><strong>14:30</strong><span>与设计团队沟通</span></div>
-                        <div class="list-item"><strong>19:00</strong><span>健身房锻炼</span></div>
                     </div>
                 </div>
-                
-                <!-- 浏览器界面 -->
+
                 <div class="app-view" id="view-browser">
                     <div class="app-header">浏览器</div>
                     <div class="app-list">
                         <div class="list-item"><strong>收藏夹</strong><span>百度 (www.baidu.com)</span></div>
-                        <div class="list-item"><strong>收藏夹</strong><span>黑莓论坛 (bbs.maxpda.com)</span></div>
                     </div>
                 </div>
 
-                <!-- 设置界面 -->
                 <div class="app-view" id="view-settings">
                     <div class="app-header">设置</div>
                     <div class="app-list">
-                        <div class="list-item"><strong>网络连接</strong><span>Wi-Fi / 移动网络 / 蓝牙</span></div>
-                        <div class="list-item"><strong>屏幕与键盘</strong><span>亮度、背光时间、字体大小</span></div>
-                        <div class="list-item"><strong>安全与隐私</strong><span>密码、加密、SIM卡</span></div>
+                        <div class="list-item"><strong>网络连接</strong><span>Wi-Fi / 移动网络</span></div>
                     </div>
                 </div>
             </div>
@@ -328,7 +297,7 @@
         <!-- 导航键区 -->
         <div class="nav-row">
             <div class="nav-btn btn-green">接听</div>
-            <div class="nav-btn btn-black">菜单</div>
+            <div class="nav-btn btn-black" id="btn-menu">菜单</div>
             <div class="trackpad" id="trackpad">
                 <div class="trackpad-inner"></div>
             </div>
@@ -336,21 +305,23 @@
             <div class="nav-btn btn-red">挂断</div>
         </div>
 
-        <!-- 全键盘区 -->
-        <div class="keyboard">
+        <!-- 全键盘区 (带功能) -->
+        <div class="keyboard" id="keyboard">
             <div class="key-row">
-                <div class="key">Q</div><div class="key">W</div><div class="key">E</div><div class="key">R</div><div class="key">T</div><div class="key">Y</div><div class="key">U</div><div class="key">I</div><div class="key">O</div><div class="key">P</div>
+                <div class="key" data-key="q">Q</div><div class="key" data-key="w">W</div><div class="key" data-key="e">E</div><div class="key" data-key="r">R</div><div class="key" data-key="t">T</div><div class="key" data-key="y">Y</div><div class="key" data-key="u">U</div><div class="key" data-key="i">I</div><div class="key" data-key="o">O</div><div class="key" data-key="p">P</div>
             </div>
             <div class="key-row">
-                <div class="key">A</div><div class="key">S</div><div class="key">D</div><div class="key">F</div><div class="key">G</div><div class="key">H</div><div class="key">J</div><div class="key">K</div><div class="key">L</div>
+                <div class="key" data-key="a">A</div><div class="key" data-key="s">S</div><div class="key" data-key="d">D</div><div class="key" data-key="f">F</div><div class="key" data-key="g">G</div><div class="key" data-key="h">H</div><div class="key" data-key="j">J</div><div class="key" data-key="k">K</div><div class="key" data-key="l">L</div>
             </div>
             <div class="key-row">
-                <div class="key special">Shift</div><div class="key">Z</div><div class="key">X</div><div class="key">C</div><div class="key">V</div><div class="key">B</div><div class="key">N</div><div class="key">M</div><div class="key special">Del</div>
+                <div class="key special" id="key-shift">Shift</div>
+                <div class="key" data-key="z">Z</div><div class="key" data-key="x">X</div><div class="key" data-key="c">C</div><div class="key" data-key="v">V</div><div class="key" data-key="b">B</div><div class="key" data-key="n">N</div><div class="key" data-key="m">M</div>
+                <div class="key special" id="key-del">Del</div>
             </div>
             <div class="key-row">
                 <div class="key special">Sym</div>
-                <div class="key space">Space</div>
-                <div class="key special">Enter</div>
+                <div class="key space" data-key=" ">Space</div>
+                <div class="key special" id="key-enter">Enter</div>
             </div>
         </div>
     </div>
@@ -362,6 +333,22 @@
         const btnBack = document.getElementById('btn-back');
         const views = document.querySelectorAll('.app-view');
         const appGrid = document.getElementById('app-grid');
+        const searchOverlay = document.getElementById('search-overlay');
+        const searchText = document.getElementById('search-text');
+        
+        // 输入状态
+        let isShiftOn = false;
+        let currentInput = null; // 当前聚焦的输入框
+
+        // 快捷键映射表 (黑莓经典)
+        const shortcutMap = {
+            'm': 'messages',
+            'b': 'bbm',
+            'e': 'email',
+            'c': 'calendar',
+            'w': 'browser',
+            's': 'settings'
+        };
 
         // 更新时间
         setInterval(() => {
@@ -371,7 +358,7 @@
                 now.getMinutes().toString().padStart(2, '0');
         }, 1000);
 
-        // 更新焦点高亮
+        // 更新焦点
         function updateFocus(newIndex) {
             icons[currentIndex].classList.remove('active');
             currentIndex = newIndex;
@@ -380,32 +367,132 @@
             icons[currentIndex].classList.add('active');
         }
 
-        // 打开 App
+        // 打开 App 逻辑
         function openApp(appId) {
             appGrid.style.display = 'none';
+            searchOverlay.classList.remove('active');
             views.forEach(v => v.classList.remove('active'));
+            
             const targetView = document.getElementById('view-' + appId);
-            if (targetView) targetView.classList.add('active');
+            if (targetView) {
+                targetView.classList.add('active');
+                // 如果是短信或BBM，显示输入框并聚焦
+                if (appId === 'messages' || appId === 'bbm') {
+                    const inputArea = document.getElementById(appId + '-input-area');
+                    inputArea.classList.add('active');
+                    currentInput = document.getElementById(appId + '-input');
+                } else {
+                    currentInput = null;
+                }
+            }
         }
 
         // 返回桌面
         function goBack() {
+            if (searchOverlay.classList.contains('active')) {
+                searchOverlay.classList.remove('active');
+                return;
+            }
             views.forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.input-area').forEach(el => el.classList.remove('active'));
             appGrid.style.display = 'grid';
+            currentInput = null;
         }
 
-        // 绑定返回键
         btnBack.addEventListener('click', goBack);
+        document.getElementById('btn-menu').addEventListener('click', () => {
+            if (appGrid.style.display === 'none') goBack();
+        });
 
-        // ========== 触控板手势 ==========
+        // ========== 核心：键盘按键逻辑 ==========
+        
+        // 模拟发送消息
+        function sendMessage(appId) {
+            if (!currentInput || currentInput.value.trim() === '') return;
+            
+            const listId = appId === 'messages' ? 'msg-list' : 'bbm-list';
+            const list = document.getElementById(listId);
+            
+            // 创建新消息节点
+            const newItem = document.createElement('div');
+            newItem.className = 'list-item';
+            newItem.innerHTML = `<strong>我 (刚刚)</strong><span>${currentInput.value}</span>`;
+            list.appendChild(newItem);
+            
+            // 滚动到底部
+            list.scrollTop = list.scrollHeight;
+            
+            // 清空输入框
+            currentInput.value = '';
+        }
+
+        // 屏幕点击键盘事件委托
+        document.getElementById('keyboard').addEventListener('click', (e) => {
+            const keyEl = e.target.closest('.key');
+            if (!keyEl) return;
+
+            // 键盘按下视觉反馈
+            keyEl.classList.add('pressed');
+            setTimeout(() => keyEl.classList.remove('pressed'), 100);
+
+            // 处理特殊键
+            if (keyEl.id === 'key-shift') {
+                isShiftOn = !isShiftOn;
+                keyEl.classList.toggle('shift-on', isShiftOn);
+                // 更新字母大小写显示
+                document.querySelectorAll('.key[data-key]').forEach(k => {
+                    if (k.innerText.length === 1) {
+                        k.innerText = isShiftOn ? k.innerText.toUpperCase() : k.innerText.toLowerCase();
+                    }
+                });
+                return;
+            }
+            
+            if (keyEl.id === 'key-del') {
+                if (currentInput) currentInput.value = currentInput.value.slice(0, -1);
+                else if (searchOverlay.classList.contains('active')) {
+                    searchText.innerText = searchText.innerText.slice(0, -1);
+                    if (searchText.innerText === '搜索: ') searchOverlay.classList.remove('active');
+                }
+                return;
+            }
+            
+            if (keyEl.id === 'key-enter') {
+                if (currentInput) {
+                    const appId = currentInput.id.split('-')[0];
+                    sendMessage(appId);
+                }
+                return;
+            }
+
+            // 处理普通按键
+            const char = keyEl.getAttribute('data-key');
+            if (!char) return;
+
+            if (currentInput) {
+                // 有输入框，直接打字
+                currentInput.value += char;
+            } else if (appGrid.style.display === 'grid') {
+                // 在桌面，触发快捷键或全局搜索
+                const lowerChar = char.toLowerCase();
+                if (shortcutMap[lowerChar]) {
+                    openApp(shortcutMap[lowerChar]);
+                } else {
+                    // 任意字母触发全局搜索
+                    searchOverlay.classList.add('active');
+                    searchText.innerText = '搜索: ' + char;
+                }
+            }
+        });
+
+        // ========== 触控板导航 (保留) ==========
         let startX = 0, startY = 0;
         let isSwiping = false;
 
         trackpad.addEventListener('touchstart', handleTouchStart, {passive: false});
         trackpad.addEventListener('touchmove', handleTouchMove, {passive: false});
         trackpad.addEventListener('touchend', handleTouchEnd, {passive: false});
-
-        // 电脑端点击触控板
+        
         trackpad.addEventListener('click', () => {
             if (appGrid.style.display !== 'none') {
                 openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
@@ -413,34 +500,26 @@
         });
 
         function handleTouchStart(e) {
-            e.preventDefault();
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            isSwiping = false;
+            e.preventDefault(); startX = e.touches[0].clientX; startY = e.touches[0].clientY; isSwiping = false;
         }
 
         function handleTouchMove(e) {
             e.preventDefault();
             if (startX === 0 || startY === 0) return;
-            
             let deltaX = e.touches[0].clientX - startX;
             let deltaY = e.touches[0].clientY - startY;
             
-            // 滑动阈值
             if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
                 isSwiping = true;
-                let cols = 4; // 现在是4列
-                
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    if (deltaX > 0) updateFocus(currentIndex + 1);
-                    else updateFocus(currentIndex - 1);
-                } else {
-                    if (deltaY > 0) updateFocus(currentIndex + cols);
-                    else updateFocus(currentIndex - cols);
+                let cols = 4;
+                if (appGrid.style.display === 'grid') {
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        if (deltaX > 0) updateFocus(currentIndex + 1); else updateFocus(currentIndex - 1);
+                    } else {
+                        if (deltaY > 0) updateFocus(currentIndex + cols); else updateFocus(currentIndex - cols);
+                    }
                 }
-                
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
             }
         }
 
@@ -449,23 +528,53 @@
             if (!isSwiping && appGrid.style.display !== 'none') {
                 openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
             }
-            startX = 0;
-            startY = 0;
+            startX = 0; startY = 0;
         }
 
-        // ========== 电脑端键盘适配 ==========
+        // ========== 电脑实体键盘适配 ==========
         document.addEventListener('keydown', (e) => {
-            if (appGrid.style.display === 'none') return; // 如果在App内，方向键暂不控制图标
-            let cols = 4;
-            if (e.key === 'ArrowRight') updateFocus(currentIndex + 1);
-            else if (e.key === 'ArrowLeft') updateFocus(currentIndex - 1);
-            else if (e.key === 'ArrowDown') updateFocus(currentIndex + cols);
-            else if (e.key === 'ArrowUp') updateFocus(currentIndex - cols);
-            else if (e.key === 'Enter') {
-                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
-            } else if (e.key === 'Escape' || e.key === 'Backspace') {
+            // 如果正在输入框打字，不要触发全局搜索/快捷键
+            if (document.activeElement.tagName === 'INPUT') return;
+
+            if (e.key === 'Escape' || e.key === 'Backspace') {
                 goBack();
+                return;
             }
+
+            if (appGrid.style.display === 'grid') {
+                // 直接按字母触发快捷键
+                const lowerKey = e.key.toLowerCase();
+                if (shortcutMap[lowerKey]) {
+                    openApp(shortcutMap[lowerKey]);
+                } else if (/^[a-z]$/.test(lowerKey)) {
+                    searchOverlay.classList.add('active');
+                    searchText.innerText = '搜索: ' + e.key;
+                }
+
+                // 方向键控制焦点
+                let cols = 4;
+                if (e.key === 'ArrowRight') updateFocus(currentIndex + 1);
+                else if (e.key === 'ArrowLeft') updateFocus(currentIndex - 1);
+                else if (e.key === 'ArrowDown') updateFocus(currentIndex + cols);
+                else if (e.key === 'ArrowUp') updateFocus(currentIndex - cols);
+                else if (e.key === 'Enter') {
+                    openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
+                }
+            }
+        });
+
+        // 处理真实键盘在输入框内的 Enter 发送
+        document.querySelectorAll('.chat-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const appId = input.id.split('-')[0];
+                    sendMessage(appId);
+                }
+            });
+            // 用真实的手机软键盘输入也可以
+            input.addEventListener('input', () => {
+                // 允许用户直接点击网页上的 input 并输入
+            });
         });
     </script>
 </body>
