@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BlackBerry Simulator</title>
+    <title>BlackBerry Bold 9900</title>
     
-    <!-- ======== 核心：添加到桌面的图标与应用级全屏设定 ======== -->
-    <!-- 设定一个经典黑莓 Logo 作为桌面图标 -->
-    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/BlackBerry_logo.svg/512px-BlackBerry_logo.svg.png">
-    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/BlackBerry_logo.svg/512px-BlackBerry_logo.svg.png">
+    <!-- 苹果设备添加到桌面的图标（PNG格式） -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/882/882786.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/882/882786.png">
     
-    <!-- 让 Safari 添加到主屏幕后，像原生 App 一样全屏运行，不显示 Safari 的底部和顶部栏 -->
+    <!-- 全屏沉浸模式 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BlackBerry">
-    <!-- ======================================================== -->
 
     <style>
         :root { --bb-blue: #00bfff; }
@@ -22,7 +20,6 @@
             background-color: #050505; display: flex; justify-content: center; align-items: center;
             height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: none;
         }
-        /* 手机外框 */
         .blackberry-device {
             width: 96vw; max-width: 420px; background: linear-gradient(180deg, #2a2a2a, #111);
             border-radius: 20px; padding: 15px 10px; box-sizing: border-box;
@@ -33,7 +30,6 @@
         .speaker { width: 50px; height: 6px; background: #000; margin: 0 auto; border-radius: 3px; }
         .logo { color: #666; font-size: 11px; margin-top: 5px; font-weight: bold; letter-spacing: 2px;}
 
-        /* 屏幕 */
         .screen-container {
             width: 100%; aspect-ratio: 4 / 3; background: #000; border: 2px solid #000;
             border-radius: 4px; position: relative; overflow: hidden; display: flex; flex-direction: column;
@@ -44,7 +40,7 @@
         }
         .screen-content { flex-grow: 1; position: relative; overflow-y: auto; }
 
-        /* 桌面图标网格 */
+        /* 桌面网格 */
         .app-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
             padding: 15px; align-content: start; height: 100%; box-sizing: border-box;
@@ -60,7 +56,7 @@
         }
         .icon-text { color: #fff; font-size: 10px; text-align: center; white-space: nowrap;}
 
-        /* 各种 App 界面 */
+        /* App 界面 */
         .app-view { display: none; flex-direction: column; height: 100%; background: #000; }
         .app-view.active { display: flex; }
         .app-header {
@@ -72,7 +68,7 @@
         .list-item strong { font-size: 13px; color: #eee; margin-bottom: 3px;}
         .list-item span { color: #888; font-size: 11px; word-break: break-all;}
 
-        /* 聊天输入区 */
+        /* 聊天输入 */
         .input-area {
             position: absolute; bottom: 0; left: 0; right: 0; background: #111;
             border-top: 1px solid #333; display: none; padding: 8px; align-items: center;
@@ -81,9 +77,14 @@
         .chat-display {
             width: 100%; background: #000; color: #fff; border: 1px solid #444;
             padding: 6px 8px; font-size: 12px; border-radius: 3px; min-height: 16px; word-break: break-all;
+            user-select: none;
         }
         .cursor { display: inline-block; width: 2px; height: 12px; background: #fff; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px;}
         @keyframes blink { 50% { opacity: 0; } }
+
+        /* 计算器 */
+        .calc-display { background: #222; color: #fff; font-size: 24px; text-align: right; padding: 15px; border-bottom: 2px solid #444; font-family: monospace;}
+        .calc-history { color: #888; font-size: 12px; padding: 5px 15px; text-align: right;}
 
         /* 导航键 */
         .nav-row { display: flex; justify-content: space-around; align-items: center; padding: 12px 0; margin-top: 5px; }
@@ -94,6 +95,7 @@
         .btn-green { background: #008000; }
         .btn-red { background: #cc0000; }
         .btn-black { background: #222; border: 1px solid #444; color: #aaa; }
+        
         .trackpad {
             width: 70px; height: 36px; background: #1a1a1a; border-radius: 18px;
             box-shadow: inset 0 3px 6px rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center;
@@ -101,12 +103,13 @@
         }
         .trackpad-inner { width: 56px; height: 26px; background: radial-gradient(circle, #333, #0a0a0a); border-radius: 13px; }
 
-        /* 键盘 */
+        /* 双字符全键盘 */
         .keyboard { padding: 5px 2px 0 2px; }
         .key-row { display: flex; justify-content: center; margin-bottom: 5px; }
         .key-row:nth-child(1) { padding: 0 2%; }
         .key-row:nth-child(2) { padding: 0 6%; }
         .key-row:nth-child(3) { padding: 0 12%; }
+        
         .key {
             background: linear-gradient(180deg, #333, #111); color: #fff; flex: 1; height: 28px; border-radius: 5px;
             margin: 0 2px; box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
@@ -115,8 +118,11 @@
         }
         .main-char { font-size: 12px; transition: all 0.15s ease; color: #fff; z-index: 2; }
         .sub-char { position: absolute; top: 2px; right: 3px; font-size: 8px; color: #777; transition: all 0.15s ease; z-index: 1; }
+        
+        /* 切换模式时的视觉变化 */
         .key.mode-active .main-char { position: absolute; top: 2px; right: 3px; font-size: 8px; color: #777; }
         .key.mode-active .sub-char { position: static; font-size: 13px; font-weight: bold; color: #fff; }
+        
         .key.special { flex: 1.5; font-size: 10px; color: #888; }
         .key.space { flex: 4; font-size: 10px; color: #888; }
         .key:active, .key.pressed { transform: translateY(1px); box-shadow: 0 1px 1px rgba(0,0,0,0.8); background: linear-gradient(180deg, #111, #333); }
@@ -135,7 +141,7 @@
             <div class="status-bar">中国移动 <span id="clock">12:00</span></div>
             
             <div class="screen-content">
-                <!-- 桌面（移除了电话） -->
+                <!-- 桌面 -->
                 <div class="app-grid" id="app-grid">
                     <div class="app-icon active" onclick="openApp('messages')">
                         <div class="icon-img" style="background:#2196F3;">💬</div><div class="icon-text">短信(M)</div>
@@ -157,7 +163,7 @@
                     </div>
                 </div>
 
-                <!-- 短信界面 -->
+                <!-- 短信 -->
                 <div class="app-view" id="view-messages">
                     <div class="app-header">短信</div>
                     <div class="app-list" id="msg-list">
@@ -171,7 +177,9 @@
                 <!-- BBM -->
                 <div class="app-view" id="view-bbm">
                     <div class="app-header">BBM</div>
-                    <div class="app-list" id="bbm-list"></div>
+                    <div class="app-list" id="bbm-list">
+                        <div class="list-item"><strong>Mike</strong><span>周末去打球吗？</span></div>
+                    </div>
                     <div class="input-area" id="bbm-input-area">
                         <div class="chat-display" id="bbm-input"><span class="cursor"></span></div>
                     </div>
@@ -180,13 +188,15 @@
                 <!-- 计算器 -->
                 <div class="app-view" id="view-calculator">
                     <div class="app-header">计算器</div>
-                    <div class="calc-display" id="calc-display" style="background:#222; color:#fff; font-size:24px; text-align:right; padding:15px;">0</div>
-                    <div style="color:#666; font-size:12px; text-align:center; margin-top:20px;">按 123 切换数字，按 Sym 切换运算符</div>
+                    <div class="calc-history" id="calc-history"></div>
+                    <div class="calc-display" id="calc-display">0</div>
+                    <div style="color:#666; font-size:12px; text-align:center; margin-top:20px;">按123切数字，按Sym切运算符</div>
                 </div>
 
+                <!-- 其他简单应用 -->
                 <div class="app-view" id="view-email">
                     <div class="app-header">邮件</div>
-                    <div class="app-list"><div class="list-item"><strong>GitHub</strong><span>[GitHub] 您的项目有新的 Star！</span></div></div>
+                    <div class="app-list"><div class="list-item"><strong>GitHub</strong><span>您的项目有新的 Star！</span></div></div>
                 </div>
                 <div class="app-view" id="view-calendar">
                     <div class="app-header">日历</div>
@@ -226,11 +236,11 @@
                 <div class="key" data-key="s" data-sym="-"><span class="main-char">s</span><span class="sub-char">-</span></div>
                 <div class="key" data-key="d" data-sym="*"><span class="main-char">d</span><span class="sub-char">*</span></div>
                 <div class="key" data-key="f" data-sym="/"><span class="main-char">f</span><span class="sub-char">/</span></div>
-                <div class="key" data-key="g"><span class="main-char">g</span></div>
-                <div class="key" data-key="h"><span class="main-char">h</span></div>
-                <div class="key" data-key="j"><span class="main-char">j</span></div>
-                <div class="key" data-key="k"><span class="main-char">k</span></div>
-                <div class="key" data-key="l"><span class="main-char">l</span></div>
+                <div class="key" data-key="g" data-sym="="><span class="main-char">g</span><span class="sub-char">=</span></div>
+                <div class="key" data-key="h" data-sym="%"><span class="main-char">h</span><span class="sub-char">%</span></div>
+                <div class="key" data-key="j" data-sym="("><span class="main-char">j</span><span class="sub-char">(</span></div>
+                <div class="key" data-key="k" data-sym=")"><span class="main-char">k</span><span class="sub-char">)</span></div>
+                <div class="key" data-key="l" data-sym="?"><span class="main-char">l</span><span class="sub-char">?</span></div>
             </div>
             <div class="key-row">
                 <div class="key special" id="key-123">123</div>
@@ -252,7 +262,6 @@
     </div>
 
     <script>
-        // ======== 核心逻辑 ========
         let currentIndex = 0;
         const icons = document.querySelectorAll('.app-icon');
         const appGrid = document.getElementById('app-grid');
@@ -264,7 +273,11 @@
         let msgText = ""; 
         let bbmText = "";
 
-        // 更新时间
+        // 计算器状态
+        let calcDisplay = document.getElementById('calc-display');
+        let calcHistory = document.getElementById('calc-history');
+        let calcCurrentNum = '0', calcPrevNum = '', calcOperator = '', calcResetNext = false;
+
         setInterval(() => {
             const now = new Date();
             document.getElementById('clock').innerText = 
@@ -325,6 +338,33 @@
             updateChatDisplay(appId);
         }
 
+        function calcInput(val) {
+            if (val === '=') {
+                if (calcOperator && calcPrevNum) {
+                    let result = 0, prev = parseFloat(calcPrevNum), curr = parseFloat(calcCurrentNum);
+                    if (calcOperator === '+') result = prev + curr;
+                    if (calcOperator === '-') result = prev - curr;
+                    if (calcOperator === '*') result = prev * curr;
+                    if (calcOperator === '/') result = prev / curr;
+                    calcHistory.innerText = `${calcPrevNum} ${calcOperator} ${calcCurrentNum} =`;
+                    calcDisplay.innerText = result;
+                    calcCurrentNum = result.toString(); calcOperator = ''; calcResetNext = true;
+                }
+                return;
+            }
+            if (['+', '-', '*', '/'].includes(val)) {
+                calcPrevNum = calcCurrentNum; calcOperator = val;
+                calcHistory.innerText = `${calcPrevNum} ${calcOperator}`; calcResetNext = true;
+                return;
+            }
+            if (calcResetNext) { calcCurrentNum = val; calcResetNext = false; } 
+            else {
+                if (calcCurrentNum === '0' && val !== '.') calcCurrentNum = val;
+                else calcCurrentNum += val;
+            }
+            calcDisplay.innerText = calcCurrentNum;
+        }
+
         function toggleKeyboardMode(mode) {
             inputMode = (inputMode === mode) ? 'letter' : mode;
             document.getElementById('key-123').classList.remove('active-mode');
@@ -348,19 +388,25 @@
                 msgText += char; updateChatDisplay('messages');
             } else if (appState === 'bbm') {
                 bbmText += char; updateChatDisplay('bbm');
+            } else if (appState === 'calculator') {
+                if (!isNaN(char) || char === '.' || ['+', '-', '*', '/'].includes(char)) calcInput(char);
             }
         }
 
         function processSpecialKey(action) {
             if (action === 'del') {
-                if (appState === 'messages' && msgText.length > 0) {
+                if (appState === 'messages') {
                     msgText = msgText.slice(0, -1); updateChatDisplay('messages');
-                } else if (appState === 'bbm' && bbmText.length > 0) {
+                } else if (appState === 'bbm') {
                     bbmText = bbmText.slice(0, -1); updateChatDisplay('bbm');
+                } else if (appState === 'calculator') {
+                    calcCurrentNum = calcCurrentNum.length > 1 ? calcCurrentNum.slice(0, -1) : '0';
+                    calcDisplay.innerText = calcCurrentNum;
                 }
             } else if (action === 'enter') {
                 if (appState === 'messages') sendMessage('messages');
                 else if (appState === 'bbm') sendMessage('bbm');
+                else if (appState === 'calculator') calcInput('=');
             }
         }
 
@@ -382,6 +428,43 @@
             if (char) processKeyInput(char);
         });
 
+        // 触控板滑动与点击
+        let startX = 0, startY = 0, isSwiping = false;
+        const trackpad = document.getElementById('trackpad');
+
+        trackpad.addEventListener('touchstart', (e) => {
+            e.preventDefault(); startX = e.touches[0].clientX; startY = e.touches[0].clientY; isSwiping = false;
+        }, {passive: false});
+
+        trackpad.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (startX === 0 || startY === 0) return;
+            let deltaX = e.touches[0].clientX - startX;
+            let deltaY = e.touches[0].clientY - startY;
+            if (Math.abs(deltaX) > 20 || Math.abs(deltaY) > 20) {
+                isSwiping = true;
+                if (appState === 'home') {
+                    let cols = 4;
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        if (deltaX > 0) updateFocus(currentIndex + 1); else updateFocus(currentIndex - 1);
+                    } else {
+                        if (deltaY > 0) updateFocus(currentIndex + cols); else updateFocus(currentIndex - cols);
+                    }
+                }
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+            }
+        }, {passive: false});
+
+        trackpad.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!isSwiping) {
+                if (appState === 'home') openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
+                else if (appState === 'calculator') calcInput('=');
+            }
+            startX = 0; startY = 0;
+        }, {passive: false});
+
+        // 实体键盘
         document.addEventListener('keydown', (e) => {
             if (appState === 'home') {
                 let cols = 4;
