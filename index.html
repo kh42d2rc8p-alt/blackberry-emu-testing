@@ -3,224 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BlackBerry Bold 9900 - Dual Character Keyboard</title>
+    <title>BlackBerry Simulator</title>
+    
+    <!-- ======== 核心：添加到桌面的图标与应用级全屏设定 ======== -->
+    <!-- 设定一个经典黑莓 Logo 作为桌面图标 -->
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/BlackBerry_logo.svg/512px-BlackBerry_logo.svg.png">
+    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/BlackBerry_logo.svg/512px-BlackBerry_logo.svg.png">
+    
+    <!-- 让 Safari 添加到主屏幕后，像原生 App 一样全屏运行，不显示 Safari 的底部和顶部栏 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BlackBerry">
+    <!-- ======================================================== -->
+
     <style>
-        :root {
-            --bb-bg: #111;
-            --bb-metal: linear-gradient(180deg, #2a2a2a, #111);
-            --bb-screen: #000;
-            --bb-blue: #00bfff;
-        }
-
+        :root { --bb-blue: #00bfff; }
         body {
-            background-color: #050505;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            touch-action: none;
+            background-color: #050505; display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: none;
         }
-
+        /* 手机外框 */
         .blackberry-device {
-            width: 96vw;
-            max-width: 420px;
-            background: var(--bb-metal);
-            border-radius: 20px;
-            padding: 15px 10px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
+            width: 96vw; max-width: 420px; background: linear-gradient(180deg, #2a2a2a, #111);
+            border-radius: 20px; padding: 15px 10px; box-sizing: border-box;
+            display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(0,0,0,0.9);
             border: 1px solid #333;
         }
-
         .top-bezel { text-align: center; padding-bottom: 8px; }
-        .speaker { width: 50px; height: 6px; background: #000; margin: 0 auto; border-radius: 3px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);}
+        .speaker { width: 50px; height: 6px; background: #000; margin: 0 auto; border-radius: 3px; }
         .logo { color: #666; font-size: 11px; margin-top: 5px; font-weight: bold; letter-spacing: 2px;}
 
+        /* 屏幕 */
         .screen-container {
-            width: 100%;
-            aspect-ratio: 4 / 3; 
-            background: var(--bb-screen);
-            border: 2px solid #000;
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            width: 100%; aspect-ratio: 4 / 3; background: #000; border: 2px solid #000;
+            border-radius: 4px; position: relative; overflow: hidden; display: flex; flex-direction: column;
         }
-
         .status-bar {
-            background: linear-gradient(180deg, #222, #111);
-            color: #aaa;
-            font-size: 11px;
-            padding: 3px 8px;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #333;
-            z-index: 10;
+            background: linear-gradient(180deg, #222, #111); color: #aaa; font-size: 11px;
+            padding: 3px 8px; display: flex; justify-content: space-between; border-bottom: 1px solid #333; z-index: 10;
         }
+        .screen-content { flex-grow: 1; position: relative; overflow-y: auto; }
 
-        .screen-content {
-            flex-grow: 1;
-            position: relative;
-            overflow-y: auto;
-        }
-
-        .search-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9); z-index: 20;
-            display: none; padding: 20px; color: #fff;
-        }
-        .search-overlay.active { display: block; }
-        .search-box { border-bottom: 2px solid var(--bb-blue); padding-bottom: 5px; font-size: 16px; margin-bottom: 10px;}
-
+        /* 桌面图标网格 */
         .app-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
             padding: 15px; align-content: start; height: 100%; box-sizing: border-box;
         }
-
         .app-icon {
-            display: flex; flex-direction: column; align-items: center;
-            cursor: pointer; padding: 5px; border: 2px solid transparent;
-            border-radius: 8px; transition: all 0.1s;
+            display: flex; flex-direction: column; align-items: center; cursor: pointer;
+            padding: 5px; border: 2px solid transparent; border-radius: 8px; transition: all 0.1s;
         }
-
-        .app-icon.active {
-            background: rgba(255,255,255,0.1); border-color: var(--bb-blue);
-            box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
-        }
-
+        .app-icon.active { background: rgba(255,255,255,0.1); border-color: var(--bb-blue); box-shadow: 0 0 10px rgba(0, 191, 255, 0.3); }
         .icon-img {
-            width: 36px; height: 36px; background: #444; border-radius: 8px;
-            margin-bottom: 5px; display: flex; justify-content: center; align-items: center;
-            font-size: 18px; box-shadow: inset 0 -2px 5px rgba(0,0,0,0.5); color: white;
+            width: 36px; height: 36px; background: #444; border-radius: 8px; margin-bottom: 5px;
+            display: flex; justify-content: center; align-items: center; font-size: 18px; color: white;
         }
         .icon-text { color: #fff; font-size: 10px; text-align: center; white-space: nowrap;}
 
+        /* 各种 App 界面 */
         .app-view { display: none; flex-direction: column; height: 100%; background: #000; }
         .app-view.active { display: flex; }
         .app-header {
-            background: linear-gradient(180deg, #333, #111); color: #fff;
-            padding: 8px; font-size: 14px; font-weight: bold; text-align: center;
-            border-bottom: 1px solid #444;
+            background: linear-gradient(180deg, #333, #111); color: #fff; padding: 8px;
+            font-size: 14px; font-weight: bold; text-align: center; border-bottom: 1px solid #444;
         }
         .app-list { flex-grow: 1; overflow-y: auto; padding-bottom: 50px;}
-        
-        .list-item {
-            padding: 10px; border-bottom: 1px solid #222;
-            color: #fff; font-size: 12px; display: flex; flex-direction: column;
-        }
+        .list-item { padding: 10px; border-bottom: 1px solid #222; color: #fff; font-size: 12px; display: flex; flex-direction: column; }
         .list-item strong { font-size: 13px; color: #eee; margin-bottom: 3px;}
         .list-item span { color: #888; font-size: 11px; word-break: break-all;}
 
+        /* 聊天输入区 */
         .input-area {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: #111; border-top: 1px solid #333;
-            display: none; padding: 8px; align-items: center;
+            position: absolute; bottom: 0; left: 0; right: 0; background: #111;
+            border-top: 1px solid #333; display: none; padding: 8px; align-items: center;
         }
         .input-area.active { display: flex; }
         .chat-display {
-            width: 100%; background: #000; color: #fff;
-            border: 1px solid #444; padding: 6px 8px; font-size: 12px;
-            border-radius: 3px; min-height: 16px; word-break: break-all; user-select: none;
+            width: 100%; background: #000; color: #fff; border: 1px solid #444;
+            padding: 6px 8px; font-size: 12px; border-radius: 3px; min-height: 16px; word-break: break-all;
         }
         .cursor { display: inline-block; width: 2px; height: 12px; background: #fff; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px;}
         @keyframes blink { 50% { opacity: 0; } }
 
-        .calc-display {
-            background: #222; color: #fff; font-size: 24px; text-align: right;
-            padding: 15px; border-bottom: 2px solid #444; font-family: monospace;
-            overflow-x: auto; white-space: nowrap;
-        }
-        .calc-history { color: #888; font-size: 12px; padding: 5px 15px; text-align: right;}
-
-        .nav-row {
-            display: flex; justify-content: space-around; align-items: center;
-            padding: 12px 0; margin-top: 5px;
-        }
+        /* 导航键 */
+        .nav-row { display: flex; justify-content: space-around; align-items: center; padding: 12px 0; margin-top: 5px; }
         .nav-btn { 
-            width: 40px; height: 22px; border-radius: 11px; 
-            display: flex; justify-content: center; align-items: center; 
-            font-size: 11px; color: #fff; font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.8); cursor: pointer;
+            width: 40px; height: 22px; border-radius: 11px; display: flex; justify-content: center; align-items: center; 
+            font-size: 11px; color: #fff; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.8); cursor: pointer;
         }
         .btn-green { background: #008000; }
         .btn-red { background: #cc0000; }
         .btn-black { background: #222; border: 1px solid #444; color: #aaa; }
-
         .trackpad {
             width: 70px; height: 36px; background: #1a1a1a; border-radius: 18px;
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.1);
-            display: flex; justify-content: center; align-items: center; cursor: pointer;
-            border: 1px solid #333;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center;
+            cursor: pointer; border: 1px solid #333;
         }
         .trackpad-inner { width: 56px; height: 26px; background: radial-gradient(circle, #333, #0a0a0a); border-radius: 13px; }
 
-        /* ======== 核心：实体键盘双字符排版 ======== */
+        /* 键盘 */
         .keyboard { padding: 5px 2px 0 2px; }
         .key-row { display: flex; justify-content: center; margin-bottom: 5px; }
         .key-row:nth-child(1) { padding: 0 2%; }
         .key-row:nth-child(2) { padding: 0 6%; }
         .key-row:nth-child(3) { padding: 0 12%; }
-        
         .key {
-            background: linear-gradient(180deg, #333, #111);
-            color: #fff; flex: 1; height: 28px; border-radius: 5px;
-            margin: 0 2px; 
-            box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
-            border: 1px solid #000; cursor: pointer; user-select: none;
-            position: relative; /* 为绝对定位准备 */
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
+            background: linear-gradient(180deg, #333, #111); color: #fff; flex: 1; height: 28px; border-radius: 5px;
+            margin: 0 2px; box-shadow: 0 2px 3px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid #000; cursor: pointer; user-select: none; position: relative;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
-        
-        /* 主字符（默认大） */
-        .main-char {
-            font-size: 12px;
-            transition: all 0.15s ease;
-            color: #fff;
-            z-index: 2;
-        }
-        
-        /* 副字符（默认小，在右上角） */
-        .sub-char {
-            position: absolute;
-            top: 2px; right: 3px;
-            font-size: 8px;
-            color: #777;
-            transition: all 0.15s ease;
-            z-index: 1;
-        }
-
-        /* 激活模式：数字/符号变大，主字符变小移到右上角 */
-        .key.mode-active .main-char {
-            position: absolute;
-            top: 2px; right: 3px;
-            font-size: 8px;
-            color: #777;
-        }
-        
-        .key.mode-active .sub-char {
-            position: static; /* 回到正常文档流居中 */
-            font-size: 13px;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        /* 功能键 */
+        .main-char { font-size: 12px; transition: all 0.15s ease; color: #fff; z-index: 2; }
+        .sub-char { position: absolute; top: 2px; right: 3px; font-size: 8px; color: #777; transition: all 0.15s ease; z-index: 1; }
+        .key.mode-active .main-char { position: absolute; top: 2px; right: 3px; font-size: 8px; color: #777; }
+        .key.mode-active .sub-char { position: static; font-size: 13px; font-weight: bold; color: #fff; }
         .key.special { flex: 1.5; font-size: 10px; color: #888; }
         .key.space { flex: 4; font-size: 10px; color: #888; }
-        
-        .key:active, .key.pressed { 
-            transform: translateY(1px); box-shadow: 0 1px 1px rgba(0,0,0,0.8); 
-            background: linear-gradient(180deg, #111, #333); 
-        }
-        
+        .key:active, .key.pressed { transform: translateY(1px); box-shadow: 0 1px 1px rgba(0,0,0,0.8); background: linear-gradient(180deg, #111, #333); }
         .key.active-mode { background: #00bfff; color: #fff; }
     </style>
 </head>
@@ -236,14 +135,10 @@
             <div class="status-bar">中国移动 <span id="clock">12:00</span></div>
             
             <div class="screen-content">
-                <div class="search-overlay" id="search-overlay">
-                    <div class="search-box" id="search-text">搜索: <span class="cursor"></span></div>
-                    <div style="font-size:12px; color:#888;">按 返回键 退出搜索</div>
-                </div>
-
+                <!-- 桌面（移除了电话） -->
                 <div class="app-grid" id="app-grid">
                     <div class="app-icon active" onclick="openApp('messages')">
-                        <div class="icon-img" style="background:#4CAF50;">💬</div><div class="icon-text">短信(M)</div>
+                        <div class="icon-img" style="background:#2196F3;">💬</div><div class="icon-text">短信(M)</div>
                     </div>
                     <div class="app-icon" onclick="openApp('bbm')">
                         <div class="icon-img" style="background:#0088cc;">BBM</div><div class="icon-text">BBM(B)</div>
@@ -257,20 +152,16 @@
                     <div class="app-icon" onclick="openApp('calculator')">
                         <div class="icon-img" style="background:#9c27b0;">🧮</div><div class="icon-text">计算器</div>
                     </div>
-                    <div class="app-icon" onclick="openApp('browser')">
-                        <div class="icon-img" style="background:#2196F3;">🌐</div><div class="icon-text">浏览器(W)</div>
-                    </div>
                     <div class="app-icon" onclick="openApp('settings')">
                         <div class="icon-img" style="background:#607d8b;">⚙️</div><div class="icon-text">设置(S)</div>
                     </div>
                 </div>
 
-                <!-- 短信 -->
+                <!-- 短信界面 -->
                 <div class="app-view" id="view-messages">
                     <div class="app-header">短信</div>
                     <div class="app-list" id="msg-list">
-                        <div class="list-item"><strong>老妈</strong><span>晚饭回家吃吗？别老玩手机了。</span></div>
-                        <div class="list-item"><strong>10086</strong><span>尊敬的客户，您本月流量已使用80%。</span></div>
+                        <div class="list-item"><strong>老妈</strong><span>晚饭回家吃吗？</span></div>
                     </div>
                     <div class="input-area" id="msg-input-area">
                         <div class="chat-display" id="msg-input"><span class="cursor"></span></div>
@@ -279,10 +170,8 @@
 
                 <!-- BBM -->
                 <div class="app-view" id="view-bbm">
-                    <div class="app-header">BlackBerry Messenger</div>
-                    <div class="app-list" id="bbm-list">
-                        <div class="list-item"><strong>Mike L.</strong><span>PIN: 24A3B4C5 - 周末去打球吗？</span></div>
-                    </div>
+                    <div class="app-header">BBM</div>
+                    <div class="app-list" id="bbm-list"></div>
                     <div class="input-area" id="bbm-input-area">
                         <div class="chat-display" id="bbm-input"><span class="cursor"></span></div>
                     </div>
@@ -291,28 +180,18 @@
                 <!-- 计算器 -->
                 <div class="app-view" id="view-calculator">
                     <div class="app-header">计算器</div>
-                    <div class="calc-history" id="calc-history"></div>
-                    <div class="calc-display" id="calc-display">0</div>
-                    <div style="color:#666; font-size:12px; text-align:center; margin-top:20px;">
-                        按 123 切换数字，按 Sym 切换运算符
-                    </div>
+                    <div class="calc-display" id="calc-display" style="background:#222; color:#fff; font-size:24px; text-align:right; padding:15px;">0</div>
+                    <div style="color:#666; font-size:12px; text-align:center; margin-top:20px;">按 123 切换数字，按 Sym 切换运算符</div>
                 </div>
 
                 <div class="app-view" id="view-email">
                     <div class="app-header">邮件</div>
                     <div class="app-list"><div class="list-item"><strong>GitHub</strong><span>[GitHub] 您的项目有新的 Star！</span></div></div>
                 </div>
-
                 <div class="app-view" id="view-calendar">
-                    <div class="app-header">日历 - 10月26日</div>
+                    <div class="app-header">日历</div>
                     <div class="app-list"><div class="list-item"><strong>10:00</strong><span>项目评审会议</span></div></div>
                 </div>
-
-                <div class="app-view" id="view-browser">
-                    <div class="app-header">浏览器</div>
-                    <div class="app-list"><div class="list-item"><strong>收藏夹</strong><span>百度 (www.baidu.com)</span></div></div>
-                </div>
-
                 <div class="app-view" id="view-settings">
                     <div class="app-header">设置</div>
                     <div class="app-list"><div class="list-item"><strong>网络连接</strong><span>Wi-Fi / 移动网络</span></div></div>
@@ -328,10 +207,9 @@
             <div class="nav-btn btn-red">挂断</div>
         </div>
 
-        <!-- 双字符全键盘 -->
+        <!-- 双字符键盘 -->
         <div class="keyboard" id="keyboard">
             <div class="key-row" id="row-1">
-                <!-- 第一排: 字母+数字 -->
                 <div class="key" data-key="q" data-num="1"><span class="main-char">q</span><span class="sub-char">1</span></div>
                 <div class="key" data-key="w" data-num="2"><span class="main-char">w</span><span class="sub-char">2</span></div>
                 <div class="key" data-key="e" data-num="3"><span class="main-char">e</span><span class="sub-char">3</span></div>
@@ -344,16 +222,15 @@
                 <div class="key" data-key="p" data-num="0"><span class="main-char">p</span><span class="sub-char">0</span></div>
             </div>
             <div class="key-row" id="row-2">
-                <!-- 第二排: 字母+运算符 -->
                 <div class="key" data-key="a" data-sym="+"><span class="main-char">a</span><span class="sub-char">+</span></div>
                 <div class="key" data-key="s" data-sym="-"><span class="main-char">s</span><span class="sub-char">-</span></div>
                 <div class="key" data-key="d" data-sym="*"><span class="main-char">d</span><span class="sub-char">*</span></div>
                 <div class="key" data-key="f" data-sym="/"><span class="main-char">f</span><span class="sub-char">/</span></div>
-                <div class="key" data-key="g" data-sym="="><span class="main-char">g</span><span class="sub-char">=</span></div>
-                <div class="key" data-key="h" data-sym="%"><span class="main-char">h</span><span class="sub-char">%</span></div>
-                <div class="key" data-key="j" data-sym="("><span class="main-char">j</span><span class="sub-char">(</span></div>
-                <div class="key" data-key="k" data-sym=")"><span class="main-char">k</span><span class="sub-char">)</span></div>
-                <div class="key" data-key="l" data-sym="?"><span class="main-char">l</span><span class="sub-char">?</span></div>
+                <div class="key" data-key="g"><span class="main-char">g</span></div>
+                <div class="key" data-key="h"><span class="main-char">h</span></div>
+                <div class="key" data-key="j"><span class="main-char">j</span></div>
+                <div class="key" data-key="k"><span class="main-char">k</span></div>
+                <div class="key" data-key="l"><span class="main-char">l</span></div>
             </div>
             <div class="key-row">
                 <div class="key special" id="key-123">123</div>
@@ -375,35 +252,19 @@
     </div>
 
     <script>
+        // ======== 核心逻辑 ========
         let currentIndex = 0;
         const icons = document.querySelectorAll('.app-icon');
-        const trackpad = document.getElementById('trackpad');
-        const btnBack = document.getElementById('btn-back');
-        const views = document.querySelectorAll('.app-view');
         const appGrid = document.getElementById('app-grid');
-        const searchOverlay = document.getElementById('search-overlay');
-        const searchText = document.getElementById('search-text');
+        const views = document.querySelectorAll('.app-view');
+        const shortcutMap = {'m': 'messages', 'b': 'bbm', 'e': 'email', 'c': 'calendar', 's': 'settings'};
         
         let appState = 'home'; 
-        
+        let inputMode = 'letter'; 
         let msgText = ""; 
         let bbmText = "";
-        let searchTextString = "";
-        
-        // 当前输入模式: 'letter', 'number', 'symbol'
-        let inputMode = 'letter'; 
 
-        const shortcutMap = {
-            'm': 'messages', 'b': 'bbm', 'e': 'email', 'c': 'calendar', 'w': 'browser', 's': 'settings'
-        };
-
-        let calcDisplay = document.getElementById('calc-display');
-        let calcHistory = document.getElementById('calc-history');
-        let calcCurrentNum = '0';
-        let calcPrevNum = '';
-        let calcOperator = '';
-        let calcResetNext = false;
-
+        // 更新时间
         setInterval(() => {
             const now = new Date();
             document.getElementById('clock').innerText = 
@@ -421,39 +282,28 @@
 
         function openApp(appId) {
             appGrid.style.display = 'none';
-            searchOverlay.classList.remove('active');
             views.forEach(v => v.classList.remove('active'));
-            
             const targetView = document.getElementById('view-' + appId);
             if (targetView) {
                 targetView.classList.add('active');
+                appState = appId;
                 if (appId === 'messages' || appId === 'bbm') {
                     document.getElementById(appId + '-input-area').classList.add('active');
-                    appState = appId;
-                    updateChatDisplay(appId); 
-                } else if (appId === 'calculator') {
-                    appState = 'calculator';
+                    updateChatDisplay(appId);
                 } else {
                     document.querySelectorAll('.input-area').forEach(el => el.classList.remove('active'));
-                    appState = 'other';
                 }
             }
         }
 
         function goBack() {
-            if (appState === 'search') {
-                searchOverlay.classList.remove('active');
-                searchTextString = "";
-                appState = 'home';
-                return;
-            }
             views.forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.input-area').forEach(el => el.classList.remove('active'));
             appGrid.style.display = 'grid';
             appState = 'home';
         }
 
-        btnBack.addEventListener('click', goBack);
+        document.getElementById('btn-back').addEventListener('click', goBack);
 
         function updateChatDisplay(appId) {
             const displayEl = document.getElementById(appId + '-input');
@@ -475,151 +325,59 @@
             updateChatDisplay(appId);
         }
 
-        function calcInput(val) {
-            if (val === 'C') {
-                calcCurrentNum = '0'; calcPrevNum = ''; calcOperator = '';
-                calcHistory.innerText = ''; calcDisplay.innerText = '0';
-                return;
-            }
-            if (val === '=') {
-                if (calcOperator && calcPrevNum) {
-                    let result = 0;
-                    let prev = parseFloat(calcPrevNum);
-                    let curr = parseFloat(calcCurrentNum);
-                    if (calcOperator === '+') result = prev + curr;
-                    if (calcOperator === '-') result = prev - curr;
-                    if (calcOperator === '*') result = prev * curr;
-                    if (calcOperator === '/') result = prev / curr;
-                    
-                    calcHistory.innerText = `${calcPrevNum} ${calcOperator} ${calcCurrentNum} =`;
-                    calcDisplay.innerText = result;
-                    calcCurrentNum = result.toString();
-                    calcOperator = '';
-                    calcResetNext = true;
-                }
-                return;
-            }
-            if (['+', '-', '*', '/'].includes(val)) {
-                calcPrevNum = calcCurrentNum; calcOperator = val;
-                calcHistory.innerText = `${calcPrevNum} ${calcOperator}`;
-                calcResetNext = true;
-                return;
-            }
-            if (calcResetNext) { calcCurrentNum = val; calcResetNext = false; } 
-            else {
-                if (calcCurrentNum === '0' && val !== '.') calcCurrentNum = val;
-                else calcCurrentNum += val;
-            }
-            calcDisplay.innerText = calcCurrentNum;
-        }
-
-        // ======== 键盘模式切换 ========
         function toggleKeyboardMode(mode) {
-            // 如果按下的模式已经是当前模式，则退回字母模式
-            if (inputMode === mode) {
-                inputMode = 'letter';
-            } else {
-                inputMode = mode;
-            }
-
-            // 重置 UI 状态
+            inputMode = (inputMode === mode) ? 'letter' : mode;
             document.getElementById('key-123').classList.remove('active-mode');
             document.getElementById('key-sym').classList.remove('active-mode');
             document.querySelectorAll('.key').forEach(k => k.classList.remove('mode-active'));
 
             if (inputMode === 'number') {
                 document.getElementById('key-123').classList.add('active-mode');
-                // 让第一排变成数字大
                 document.querySelectorAll('#row-1 .key').forEach(k => k.classList.add('mode-active'));
             } else if (inputMode === 'symbol') {
                 document.getElementById('key-sym').classList.add('active-mode');
-                // 让第二排变成符号大
                 document.querySelectorAll('#row-2 .key').forEach(k => k.classList.add('mode-active'));
             }
         }
 
-        function processKeyInput(char, isSpecialAction = false) {
-            if (isSpecialAction) return;
-
+        function processKeyInput(char) {
             if (appState === 'home') {
                 const lowerChar = char.toLowerCase();
-                if (shortcutMap[lowerChar] && inputMode === 'letter') {
-                    openApp(shortcutMap[lowerChar]);
-                } else {
-                    appState = 'search';
-                    searchOverlay.classList.add('active');
-                    searchTextString = char;
-                    searchText.innerHTML = '搜索: ' + searchTextString + '<span class="cursor"></span>';
-                }
-                return;
-            }
-
-            if (appState === 'search') {
-                searchTextString += char;
-                searchText.innerHTML = '搜索: ' + searchTextString + '<span class="cursor"></span>';
-                return;
-            }
-
-            if (appState === 'messages' || appState === 'bbm') {
-                if (appState === 'messages') {
-                    msgText += char; 
-                    updateChatDisplay('messages');
-                } else {
-                    bbmText += char; 
-                    updateChatDisplay('bbm');
-                }
-                return;
-            }
-
-            if (appState === 'calculator') {
-                if (!isNaN(char) || char === '.' || ['+', '-', '*', '/'].includes(char)) {
-                    calcInput(char);
-                }
-                return;
+                if (shortcutMap[lowerChar] && inputMode === 'letter') openApp(shortcutMap[lowerChar]);
+            } else if (appState === 'messages') {
+                msgText += char; updateChatDisplay('messages');
+            } else if (appState === 'bbm') {
+                bbmText += char; updateChatDisplay('bbm');
             }
         }
 
         function processSpecialKey(action) {
             if (action === 'del') {
-                if (appState === 'messages') {
+                if (appState === 'messages' && msgText.length > 0) {
                     msgText = msgText.slice(0, -1); updateChatDisplay('messages');
-                } else if (appState === 'bbm') {
+                } else if (appState === 'bbm' && bbmText.length > 0) {
                     bbmText = bbmText.slice(0, -1); updateChatDisplay('bbm');
-                } else if (appState === 'search') {
-                    searchTextString = searchTextString.slice(0, -1);
-                    if (searchTextString === '') { goBack(); } 
-                    else { searchText.innerHTML = '搜索: ' + searchTextString + '<span class="cursor"></span>'; }
-                } else if (appState === 'calculator') {
-                    calcCurrentNum = calcCurrentNum.length > 1 ? calcCurrentNum.slice(0, -1) : '0';
-                    calcDisplay.innerText = calcCurrentNum;
                 }
             } else if (action === 'enter') {
                 if (appState === 'messages') sendMessage('messages');
                 else if (appState === 'bbm') sendMessage('bbm');
-                else if (appState === 'calculator') calcInput('=');
             }
         }
 
         document.getElementById('keyboard').addEventListener('click', (e) => {
             const keyEl = e.target.closest('.key');
             if (!keyEl) return;
-
             keyEl.classList.add('pressed');
             setTimeout(() => keyEl.classList.remove('pressed'), 100);
 
             if (keyEl.id === 'key-del') { processSpecialKey('del'); return; }
             if (keyEl.id === 'key-enter') { processSpecialKey('enter'); return; }
-            
             if (keyEl.id === 'key-123') { toggleKeyboardMode('number'); return; }
             if (keyEl.id === 'key-sym') { toggleKeyboardMode('symbol'); return; }
 
-            // 根据当前模式决定取哪个字符
             let char = keyEl.getAttribute('data-key');
-            if (inputMode === 'number' && keyEl.hasAttribute('data-num')) {
-                char = keyEl.getAttribute('data-num');
-            } else if (inputMode === 'symbol' && keyEl.hasAttribute('data-sym')) {
-                char = keyEl.getAttribute('data-sym');
-            }
+            if (inputMode === 'number' && keyEl.hasAttribute('data-num')) char = keyEl.getAttribute('data-num');
+            if (inputMode === 'symbol' && keyEl.hasAttribute('data-sym')) char = keyEl.getAttribute('data-sym');
 
             if (char) processKeyInput(char);
         });
@@ -631,26 +389,11 @@
                 if (e.key === 'ArrowLeft') { updateFocus(currentIndex - 1); return; }
                 if (e.key === 'ArrowDown') { updateFocus(currentIndex + cols); return; }
                 if (e.key === 'ArrowUp') { updateFocus(currentIndex - cols); return; }
-                if (e.key === 'Enter') { 
-                    openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]); 
-                    return; 
-                }
+                if (e.key === 'Enter') { openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]); return; }
             }
-            
             if (e.key === 'Escape' || e.key === 'Backspace') { processSpecialKey('del'); if(e.key === 'Escape') goBack(); return; }
             if (e.key === 'Enter') { processSpecialKey('enter'); return; }
-
-            if (e.key.length === 1) {
-                processKeyInput(e.key);
-            }
-        });
-
-        trackpad.addEventListener('click', () => {
-            if (appState === 'home') {
-                openApp(icons[currentIndex].getAttribute('onclick').match(/'([^']+)'/)[1]);
-            } else if (appState === 'calculator') {
-                calcInput('=');
-            }
+            if (e.key.length === 1) processKeyInput(e.key);
         });
     </script>
 </body>
